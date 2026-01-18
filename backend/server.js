@@ -11,6 +11,18 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+// Root route - serve Index.html
+app.get('/', (req, res) => {
+  const indexPath = path.join(__dirname, '../frontend/Index.html');
+  console.log('Attempting to serve:', indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending file:', err);
+      res.status(err.status).end();
+    }
+  });
+});
+
 // M-Pesa Daraja API Credentials
 const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || 'your_consumer_key_here';
 const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || 'your_consumer_secret_here';
@@ -74,40 +86,9 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       });
     }
 
-    // Get access token
-    const accessToken = await getAccessToken();
-
-    // Generate timestamp and password
-    const timestamp = moment().format('YYYYMMDDHHmmss');
-    const password = Buffer.from(
-      `${BUSINESS_SHORTCODE}${PASSKEY}${timestamp}`
-    ).toString('base64');
-
-    // Prepare STK Push request
-    const stkRequest = {
-      BusinessShortCode: BUSINESS_SHORTCODE,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: 'CustomerPayBillOnline',
-      Amount: Math.round(amount),
-      PartyA: formattedPhone,
-      PartyB: BUSINESS_SHORTCODE,
-      PhoneNumber: formattedPhone,
-      CallBackURL: 'https://mpesaapi.safaricom.co.ke/test/v1/callback',
-      AccountReference: orderNumber,
-      TransactionDesc: `Payment for order ${orderNumber} - ${customerName}`
-    };
-
-    // Send STK Push
-    const response = await axios.post(STK_URL, stkRequest, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    // Store transaction for tracking
-    const checkoutRequestId = response.data.CheckoutRequestID;
+    // DEMO MODE: Simulate STK Push (remove when using real credentials)
+    const checkoutRequestId = 'ws_CO_' + moment().format('DDHHmmss') + Math.random().toString(36).substr(2, 9).toUpperCase();
+    
     pendingTransactions[checkoutRequestId] = {
       orderNumber,
       phoneNumber: formattedPhone,
@@ -117,11 +98,29 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       status: 'PENDING'
     };
 
+    console.log('DEMO STK Push Simulated:', {
+      phoneNumber: formattedPhone,
+      amount: Math.round(amount),
+      orderNumber,
+      checkoutRequestId
+    });
+
+    // Simulate successful STK push (in real scenario, M-Pesa would send this)
+    // Auto-approve after 5 seconds for demo
+    setTimeout(() => {
+      if (pendingTransactions[checkoutRequestId]) {
+        pendingTransactions[checkoutRequestId].status = 'COMPLETED';
+        pendingTransactions[checkoutRequestId].mpesaReceiptNumber = 'LHL223' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        console.log('DEMO: Payment completed for', orderNumber);
+      }
+    }, 5000);
+
     res.json({
       success: true,
-      message: 'STK Push sent successfully',
+      message: 'STK Push sent successfully (DEMO MODE)',
       checkoutRequestId: checkoutRequestId,
-      responseCode: response.data.ResponseCode
+      responseCode: '0',
+      demoMode: true
     });
 
   } catch (error) {
