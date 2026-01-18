@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Remedy Store - E-Commerce Platform with M-Pesa Integration
 
 A modern e-commerce web application for selling natural remedies with real M-Pesa payment integration.
@@ -136,3 +137,7 @@ See `SETUP.md` for detailed deployment instructions to production.
 ---
 
 **Status**: Ready for production after M-Pesa credentials configuration
+=======
+# remedy-store
+This is remedy-store, that market natural remedy online. 
+>>>>>>> 1ee567e87c5f983009c6ccbf7790c3c394b0eee7
