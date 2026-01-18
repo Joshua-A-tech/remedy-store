@@ -86,9 +86,40 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       });
     }
 
-    // DEMO MODE: Simulate STK Push (remove when using real credentials)
-    const checkoutRequestId = 'ws_CO_' + moment().format('DDHHmmss') + Math.random().toString(36).substr(2, 9).toUpperCase();
-    
+    // Get access token
+    const accessToken = await getAccessToken();
+
+    // Generate timestamp and password
+    const timestamp = moment().format('YYYYMMDDHHmmss');
+    const password = Buffer.from(
+      `${BUSINESS_SHORTCODE}${PASSKEY}${timestamp}`
+    ).toString('base64');
+
+    // Prepare STK Push request
+    const stkRequest = {
+      BusinessShortCode: BUSINESS_SHORTCODE,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: 'CustomerPayBillOnline',
+      Amount: Math.round(amount),
+      PartyA: formattedPhone,
+      PartyB: BUSINESS_SHORTCODE,
+      PhoneNumber: formattedPhone,
+      CallBackURL: CALLBACK_URL,
+      AccountReference: orderNumber,
+      TransactionDesc: `Payment for order ${orderNumber} - ${customerName}`
+    };
+
+    // Send STK Push
+    const response = await axios.post(STK_URL, stkRequest, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Store transaction for tracking
+    const checkoutRequestId = response.data.CheckoutRequestID;
     pendingTransactions[checkoutRequestId] = {
       orderNumber,
       phoneNumber: formattedPhone,
@@ -98,29 +129,18 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       status: 'PENDING'
     };
 
-    console.log('DEMO STK Push Simulated:', {
+    console.log('STK Push sent successfully:', {
       phoneNumber: formattedPhone,
       amount: Math.round(amount),
       orderNumber,
       checkoutRequestId
     });
 
-    // Simulate successful STK push (in real scenario, M-Pesa would send this)
-    // Auto-approve after 5 seconds for demo
-    setTimeout(() => {
-      if (pendingTransactions[checkoutRequestId]) {
-        pendingTransactions[checkoutRequestId].status = 'COMPLETED';
-        pendingTransactions[checkoutRequestId].mpesaReceiptNumber = 'LHL223' + Math.random().toString(36).substr(2, 5).toUpperCase();
-        console.log('DEMO: Payment completed for', orderNumber);
-      }
-    }, 5000);
-
     res.json({
       success: true,
-      message: 'STK Push sent successfully (DEMO MODE)',
+      message: 'STK Push sent successfully',
       checkoutRequestId: checkoutRequestId,
-      responseCode: '0',
-      demoMode: true
+      responseCode: response.data.ResponseCode
     });
 
   } catch (error) {
