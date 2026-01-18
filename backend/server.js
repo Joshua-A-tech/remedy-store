@@ -3,12 +3,13 @@ const axios = require('axios');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const moment = require('moment');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('../frontend'));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // M-Pesa Daraja API Credentials
 const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || 'your_consumer_key_here';
@@ -54,12 +55,23 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       });
     }
 
-    // Format phone number (remove leading 0, add 254)
-    let formattedPhone = phoneNumber.replace(/^0/, '254');
-    if (formattedPhone.startsWith('254')) {
-      formattedPhone = formattedPhone;
-    } else {
+    // Format phone number (remove leading 0 and +, add 254)
+    let formattedPhone = phoneNumber.replace(/^\+/, '').replace(/^0/, '254');
+    
+    // If it doesn't start with 254, add it
+    if (!formattedPhone.startsWith('254')) {
       formattedPhone = '254' + formattedPhone;
+    }
+    
+    // Ensure it's all digits
+    formattedPhone = formattedPhone.replace(/\D/g, '');
+    
+    // Validate it's a proper length (254 + 9 digits minimum)
+    if (formattedPhone.length < 12) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone number format. Use format: 0712345678 or +254712345678'
+      });
     }
 
     // Get access token
@@ -81,7 +93,7 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       PartyA: formattedPhone,
       PartyB: BUSINESS_SHORTCODE,
       PhoneNumber: formattedPhone,
-      CallBackURL: CALLBACK_URL,
+      CallBackURL: 'https://mpesaapi.safaricom.co.ke/test/v1/callback',
       AccountReference: orderNumber,
       TransactionDesc: `Payment for order ${orderNumber} - ${customerName}`
     };

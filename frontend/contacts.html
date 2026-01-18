@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <title>Contact us</title>
+  <script>
+    function handleContactForm(e) {
+      e.preventDefault();
+      const name = document.getElementById('inputName').value;
+      const email = document.getElementById('inputEmail').value;
+      const phone = document.getElementById('inputNumber').value;
+      const county = document.getElementById('countySelect').value;
+      const city = document.getElementById('inputCity').value;
+      const message = document.getElementById('inputOthers').value;
+      
+      alert(`Thank you for your message, ${name}! We'll contact you soon at ${email} or ${phone}.`);
+      document.querySelector('form').reset();
+    }
+  </script>
  </head>
 <body>
      <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
@@ -55,7 +69,7 @@
   <div class="row justify-content-center">
     <div class="col-md-8">
       <h2 class="mb-4">Contact Us</h2>
-      <form>
+      <form onsubmit="handleContactForm(event)">
         <div class="mb-3">
           <label for="inputName" class="form-label">Full Name</label>
           <input type="text" class="form-control" id="inputName" placeholder="Enter your full name" required>
@@ -64,11 +78,6 @@
         <div class="mb-3">
           <label for="inputEmail" class="form-label">Email</label>
           <input type="email" class="form-control" id="inputEmail" placeholder="Enter your email" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="inputPassword" class="form-label">Password</label>
-          <input type="password" class="form-control" id="inputPassword" placeholder="Enter your password" required>
         </div>
 
         <div class="mb-3">
@@ -84,8 +93,7 @@
             <option value="Bomet">Bomet</option>
             <option value="Bungoma">Bungoma</option>
             <option value="Busia">Busia</option>
-            <option value="Caliber">Caliber</option>
-            <option value="Campden">Campden</option>
+            <option value="Elgeyo-Marakwet">Elgeyo-Marakwet</option>
             <option value="Embu">Embu</option>
             <option value="Garissa">Garissa</option>
             <option value="Homabay">Homa Bay</option>

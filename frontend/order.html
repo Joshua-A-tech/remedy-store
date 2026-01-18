@@ -12,6 +12,8 @@
       let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
       function addToCart(productName, price) {
+        alert('Added: ' + productName + ' - KES ' + price);
+        console.log('addToCart called with:', productName, price);
         const existingItem = cart.find(item => item.name === productName);
         
         if (existingItem) {
@@ -20,6 +22,7 @@
           cart.push({ name: productName, price: price, quantity: 1 });
         }
         
+        console.log('Cart after adding:', cart);
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartUI();
         showAddToCartNotification(productName);
@@ -375,8 +378,7 @@
 
         // Simulate processing delay
         setTimeout(() => {
-          try {          cd c:\Users\Joshua\OneDrive\Desktop\webpr
-          npm install
+          try {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const shippingFee = 50;
             const tax = Math.round(subtotal * 0.005);
@@ -532,7 +534,7 @@
           </p>
           <p class="text-muted"><small><strong>Usage:</strong> Add to meals, smoothies, or take as a supplement capsule.</small></p>
           <p class="text-success"><strong>KES 200</strong></p>
-          <button class="btn btn-success btn-block w-100" onclick="addToCart('Cayenne Pepper', 200)">Add to Cart</button>
+          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Cayenne Pepper', 200);">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -548,7 +550,7 @@
           </p>
           <p class="text-muted"><small><strong>Usage:</strong> Add to curries, golden milk, teas, or take as capsules with black pepper for better absorption.</small></p>
           <p class="text-success"><strong>KES 200</strong></p>
-          <button class="btn btn-success btn-block w-100" onclick="addToCart('Turmeric Powder', 200)">Add to Cart</button>
+          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Turmeric Powder', 200);">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -564,7 +566,7 @@
           </p>
           <p class="text-muted"><small><strong>Usage:</strong> Take as capsules or powder mixed with water. Use for short-term detox or daily wellness.</small></p>
           <p class="text-success"><strong>KES 200</strong></p>
-          <button class="btn btn-success btn-block w-100" onclick="addToCart('Activated Charcoal', 200)">Add to Cart</button>
+          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Activated Charcoal', 200);">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -580,7 +582,7 @@
           </p>
           <p class="text-muted"><small><strong>Usage:</strong> Take as capsules, powder mixed in warm milk or smoothies, or as herbal tea.</small></p>
           <p class="text-success"><strong>KES 200</strong></p>
-          <button class="btn btn-success btn-block w-100" onclick="addToCart('Ashwagandha', 200)">Add to Cart</button>
+          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Ashwagandha', 200);">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -596,7 +598,7 @@
           </p>
           <p class="text-muted"><small><strong>Usage:</strong> Grind seeds and add to smoothies, cereals, or baked goods. Can also consume whole or make flax milk.</small></p>
           <p class="text-success"><strong>KES 300</strong></p>
-          <button class="btn btn-success btn-block w-100" onclick="addToCart('Flax Seeds', 300)">Add to Cart</button>
+          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Flax Seeds', 300);">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -612,7 +614,7 @@
           </p>
           <p class="text-muted"><small><strong>Usage:</strong> Soak in water or milk for chia pudding, add to smoothies, cereals, or sprinkle on salads.</small></p>
           <p class="text-success"><strong>KES 1,600</strong></p>
-          <button class="btn btn-success btn-block w-100" onclick="addToCart('Chia Seeds', 1600)">Add to Cart</button>
+          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Chia Seeds', 1600);">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -628,7 +630,7 @@
           </p>
           <p class="text-muted"><small><strong>Usage:</strong> Brew as herbal tea, take as capsules or dried leaf infusions. Best consumed daily for optimal benefits.</small></p>
           <p class="text-success"><strong>KES 300</strong></p>
-          <button class="btn btn-success btn-block w-100" onclick="addToCart('Stinging Nettle', 300)">Add to Cart</button>
+          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Stinging Nettle', 300);">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -658,8 +660,8 @@
             <strong>Total:</strong>
             <span id="cart-total" class="text-success fs-5">KES 0</span>
           </div>
-          <button class="btn btn-success btn-block w-100 mb-2" onclick="openCheckout()">Checkout</button>
-          <button class="btn btn-outline-secondary btn-block w-100" onclick="cart = []; localStorage.setItem('cart', JSON.stringify(cart)); updateCartUI(); displayCartItems();">Clear Cart</button>
+          <button type="button" class="btn btn-success w-100 mb-2" onclick="return openCheckout();">Checkout</button>
+          <button type="button" class="btn btn-outline-secondary w-100" onclick="cart = []; localStorage.setItem('cart', JSON.stringify(cart)); updateCartUI(); displayCartItems();">Clear Cart</button>
         </div>
       </div>
     </div>
