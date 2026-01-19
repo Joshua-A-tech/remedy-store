@@ -1,34 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "frontend/**",
-      "use": "@vercel/static"
+  "buildCommand": "npm install --prefix backend",
+  "framework": "express",
+  "functions": {
+    "backend/server.js": {
+      "maxDuration": 60
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "/mpesa-callback",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
-    }
-  ],
-  "env": {
-    "MPESA_CONSUMER_KEY": "@mpesa_consumer_key",
-    "MPESA_CONSUMER_SECRET": "@mpesa_consumer_secret",
-    "MPESA_BUSINESS_SHORTCODE": "@mpesa_business_shortcode",
-    "MPESA_PASSKEY": "@mpesa_passkey",
-    "NODE_ENV": "production"
   }
 }
