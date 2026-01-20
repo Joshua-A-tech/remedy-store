@@ -15,7 +15,7 @@ const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || 'your_consumer_key_here';
 const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || 'your_consumer_secret_here';
 const BUSINESS_SHORTCODE = process.env.MPESA_BUSINESS_SHORTCODE || '174379';
 const PASSKEY = process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd1a503b6055e3e7635eae304cd07f2d9d06d17e11';
-const CALLBACK_URL = process.env.CALLBACK_URL || 'http://localhost:3000/mpesa-callback';
+const CALLBACK_URL = process.env.CALLBACK_URL || 'https://remedy-store.vercel.app//mpesa-callback';
 
 // M-Pesa Daraja API URLs
 const AUTH_URL = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
