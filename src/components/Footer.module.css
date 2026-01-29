@@ -1,0 +1,11 @@
+.footer {
+  background-color: #111827; /* default dark slate */
+  color: #f9fafb;
+  padding: 1.25rem 0;
+  text-align: center;
+}
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
