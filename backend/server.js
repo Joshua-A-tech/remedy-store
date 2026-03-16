@@ -1,3 +1,6 @@
+// =======================
+// IMPORTS
+// =======================
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
@@ -7,59 +10,101 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+
+// =======================
+// MIDDLEWARE
+// =======================
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Root route - serve Index.html
+// =======================
+// ROOT ROUTE
+// =======================
 app.get('/', (req, res) => {
   const indexPath = path.join(__dirname, '../frontend/Index.html');
-  console.log('Attempting to serve:', indexPath);
+  console.log('Serving:', indexPath);
+
   res.sendFile(indexPath, (err) => {
     if (err) {
-      console.error('Error sending file:', err);
-      res.status(err.status).end();
+      console.error('File error:', err);
+      res.status(err.status || 500).end();
     }
   });
 });
 
-// M-Pesa Daraja API Credentials
-const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || 'uejG7VmKqHL7s6UdevhkTNnYbotZG9Y8CNQ8pykfrVIwtxk';
-const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || 'wgIKGcjloXp3IcdusasXCqnzLLWLOksP21paHJe6joyC6JZAGiKSQBGFormoD4gO';
+// =======================
+// MPESA CONFIGURATION
+// =======================
+const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY;
+const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET;
 const BUSINESS_SHORTCODE = process.env.MPESA_BUSINESS_SHORTCODE || '174379';
-const PASSKEY = process.env.MPESA_PASSKEY || 'bfb279f9aa9bdbcf158e97dd1a503b6055e3e7635eae304cd07f2d9d06d17e11';
-const CALLBACK_URL = process.env.CALLBACK_URL || 'https://remedy-store.vercel.app/mpesa-callback';
+const PASSKEY = process.env.MPESA_PASSKEY;
+const CALLBACK_URL = process.env.CALLBACK_URL;
 
-// M-Pesa Daraja API URLs
-const AUTH_URL = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-const STK_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-const QUERY_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
+// =======================
+// DARARA API URLS
+// =======================
+const AUTH_URL =
+  'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
-// Store pending transactions
+const STK_URL =
+  'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
+
+const QUERY_URL =
+  'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
+
+// =======================
+// MEMORY TRANSACTIONS
+// =======================
 const pendingTransactions = {};
 
-// Get M-Pesa Access Token
+// =======================
+// CLEAN OLD TRANSACTIONS
+// =======================
+function cleanOldTransactions() {
+  const now = Date.now();
+
+  Object.keys(pendingTransactions).forEach((id) => {
+    const transaction = pendingTransactions[id];
+    const age = now - new Date(transaction.createdAt).getTime();
+
+    if (age > 10 * 60 * 1000) {
+      delete pendingTransactions[id];
+    }
+  });
+}
+
+setInterval(cleanOldTransactions, 5 * 60 * 1000);
+
+// =======================
+// GET MPESA ACCESS TOKEN
+// =======================
 async function getAccessToken() {
   try {
-    const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
+    const auth = Buffer.from(
+      `${CONSUMER_KEY}:${CONSUMER_SECRET}`
+    ).toString('base64');
+
     const response = await axios.get(AUTH_URL, {
-      headers: {
-        Authorization: `Basic ${auth}`
-      }
+      headers: { Authorization: `Basic ${auth}` }
     });
+
     return response.data.access_token;
+
   } catch (error) {
-    console.error('Error getting access token:', error.message);
+    console.error('Access token error:', error.message);
     throw error;
   }
 }
 
-// Send STK Push to M-Pesa
+// =======================
+// STK PUSH ROUTE
+// =======================
 app.post('/api/mpesa-stk-push', async (req, res) => {
   try {
-    const { phoneNumber, amount, orderNumber, customerName } = req.body;
+    const { phoneNumber, amount, orderNumber } = req.body;
 
-    // Validate input
     if (!phoneNumber || !amount || !orderNumber) {
       return res.status(400).json({
         success: false,
@@ -67,38 +112,40 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       });
     }
 
-    // Format phone number (remove leading + and 0, add 254)
-    let formattedPhone = phoneNumber.replace(/^\+/, '').replace(/^0/, '254');
+    // Format phone number
+    let phone = phoneNumber.replace(/^\+/, '').replace(/^0/, '254');
 
-    // If it doesn't start with 254, add it
-    if (!formattedPhone.startsWith('254')) {
-      formattedPhone = '254' + formattedPhone;
+    if (!phone.startsWith('254')) {
+      phone = '254' + phone;
     }
 
-    // Ensure it's all digits
-    formattedPhone = formattedPhone.replace(/\D/g, '');
+    phone = phone.replace(/\D/g, '');
 
-    // Get access token
+    // Validate phone
+    if (!/^254\d{9}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone number format'
+      });
+    }
+
     const accessToken = await getAccessToken();
 
-    // Generate timestamp and password
     const timestamp = moment().format('YYYYMMDDHHmmss');
+
     const password = Buffer.from(
       `${BUSINESS_SHORTCODE}${PASSKEY}${timestamp}`
     ).toString('base64');
 
-    const checkoutRequestId = `CR${Date.now()}`;
-
-    // Prepare STK Push request
     const stkRequest = {
       BusinessShortCode: BUSINESS_SHORTCODE,
       Password: password,
       Timestamp: timestamp,
       TransactionType: 'CustomerPayBillOnline',
       Amount: Math.round(amount),
-      PartyA: formattedPhone,
+      PartyA: phone,
       PartyB: BUSINESS_SHORTCODE,
-      PhoneNumber: formattedPhone,
+      PhoneNumber: phone,
       CallBackURL: CALLBACK_URL,
       AccountReference: orderNumber,
       TransactionDesc: `Payment for order ${orderNumber}`
@@ -111,7 +158,9 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
       }
     });
 
-    // Save pending transaction
+    // Use real CheckoutRequestID
+    const checkoutRequestId = response.data.CheckoutRequestID;
+
     pendingTransactions[checkoutRequestId] = {
       orderNumber,
       checkoutRequestId,
@@ -122,28 +171,31 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
     res.json({
       success: true,
       message: 'STK Push sent successfully',
-      checkoutRequestId: checkoutRequestId,
-      responseCode: response.data.ResponseCode
+      checkoutRequestId
     });
 
   } catch (error) {
-    console.error('STK Push Error:', error.response?.data || error.message);
+    console.error(
+      'STK Push Error:',
+      error.response?.data || error.message
+    );
+
     res.status(500).json({
       success: false,
-      message: error.response?.data?.errorMessage || 'Failed to send STK Push',
-      error: error.message
+      message: 'Failed to send STK Push'
     });
   }
 });
 
-// M-Pesa Callback Handler
+// =======================
+// MPESA CALLBACK
+// =======================
 app.post('/mpesa-callback', (req, res) => {
   try {
-    const { Body } = req.body || {};
-    const result = Body?.stkCallback;
+    const result = req.body?.Body?.stkCallback;
 
     if (!result) {
-      console.warn('mpesa-callback received unexpected body:', req.body);
+      console.warn('Unexpected callback body:', req.body);
       return res.json({});
     }
 
@@ -151,61 +203,67 @@ app.post('/mpesa-callback', (req, res) => {
     const resultCode = result.ResultCode;
     const resultDesc = result.ResultDesc;
 
-    console.log('M-Pesa Callback:', {
+    console.log('Callback:', {
       checkoutRequestId,
       resultCode,
       resultDesc
     });
 
-    // Update transaction status
     if (pendingTransactions[checkoutRequestId]) {
+
       if (resultCode === 0) {
-        // Payment successful
+
         pendingTransactions[checkoutRequestId].status = 'COMPLETED';
-        const callbackMetadata = result.CallbackMetadata?.Item || [];
-        const mpesaReceiptNumber = callbackMetadata.find(
-          item => item.Name === 'MpesaReceiptNumber'
+
+        const metadata = result.CallbackMetadata?.Item || [];
+
+        const receipt = metadata.find(
+          (item) => item.Name === 'MpesaReceiptNumber'
         )?.Value;
-        pendingTransactions[checkoutRequestId].mpesaReceiptNumber = mpesaReceiptNumber;
+
+        pendingTransactions[checkoutRequestId].mpesaReceiptNumber = receipt;
+
       } else {
-        // Payment failed or cancelled
+
         pendingTransactions[checkoutRequestId].status = 'FAILED';
+
       }
     }
 
-    // Return success response to M-Pesa
     res.json({});
 
   } catch (error) {
-    console.error('Callback Error:', error);
+    console.error('Callback error:', error);
     res.json({});
   }
 });
 
-// Check Payment Status
+// =======================
+// CHECK PAYMENT STATUS
+// =======================
 app.post('/api/check-payment-status', async (req, res) => {
   try {
+
     const { checkoutRequestId } = req.body;
 
     if (!checkoutRequestId) {
       return res.status(400).json({
         success: false,
-        message: 'Checkout Request ID required'
+        message: 'CheckoutRequestID required'
       });
     }
 
-    // Check in pending transactions
     if (pendingTransactions[checkoutRequestId]) {
       return res.json({
         success: true,
-        status: pendingTransactions[checkoutRequestId].status,
-        transaction: pendingTransactions[checkoutRequestId]
+        status: pendingTransactions[checkoutRequestId].status
       });
     }
 
-    // Query M-Pesa if not in local cache
     const accessToken = await getAccessToken();
+
     const timestamp = moment().format('YYYYMMDDHHmmss');
+
     const password = Buffer.from(
       `${BUSINESS_SHORTCODE}${PASSKEY}${timestamp}`
     ).toString('base64');
@@ -226,33 +284,47 @@ app.post('/api/check-payment-status', async (req, res) => {
 
     res.json({
       success: true,
-      status: response.data.ResultCode === 0 ? 'COMPLETED' : 'PENDING',
-      response: response.data
+      status: response.data.ResultCode === 0
+        ? 'COMPLETED'
+        : 'PENDING'
     });
 
   } catch (error) {
-    console.error('Query Error:', error.message);
+
+    console.error('Query error:', error.message);
+
     res.status(500).json({
       success: false,
-      message: 'Failed to check payment status',
-      error: error.message
+      message: 'Failed to check payment status'
     });
+
   }
 });
 
-// Health check
+// =======================
+// HEALTH CHECK
+// =======================
 app.get('/health', (req, res) => {
-  res.json({ status: 'Server running', timestamp: new Date() });
+  res.json({
+    status: 'Server running',
+    time: new Date()
+  });
 });
 
-// Only start listening when running locally (not on Vercel serverless)
+// =======================
+// START SERVER
+// =======================
 const PORT = process.env.PORT || 3000;
-if (process.env.LOCAL === 'true' || process.env.NODE_ENV !== 'production') {
+
+if (
+  process.env.LOCAL === 'true' ||
+  process.env.NODE_ENV !== 'production'
+) {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT} (local mode)`);
-    console.log('M-Pesa Daraja API Integration Active');
+    console.log(`Server running on port ${PORT}`);
+    console.log('M-Pesa Daraja API active');
   });
 }
 
-// Export app for serverless platforms (Vercel will import this)
+// Export for serverless
 module.exports = app;
