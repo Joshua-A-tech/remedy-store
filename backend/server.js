@@ -1,10 +1,6 @@
-// =======================
-// IMPORTS
-// =======================
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const moment = require('moment');
 const path = require('path');
 require('dotenv').config();
@@ -15,316 +11,129 @@ const app = express();
 // MIDDLEWARE
 // =======================
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json()); // Native Express body-parser
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // =======================
-// ROOT ROUTE
+// CONFIG & CONSTANTS
 // =======================
-app.get('/', (req, res) => {
-  const indexPath = path.join(__dirname, '../frontend/Index.html');
-  console.log('Serving:', indexPath);
+const {
+    MPESA_CONSUMER_KEY,
+    MPESA_CONSUMER_SECRET,
+    MPESA_PASSKEY,
+    MPESA_BUSINESS_SHORTCODE = '174379',
+    CALLBACK_URL,
+    NODE_ENV = 'development'
+} = process.env;
 
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('File error:', err);
-      res.status(err.status || 500).end();
+// Use Sandbox URL if not in production
+const BASE_URL = NODE_ENV === 'production' 
+    ? 'https://safaricom.co.ke' 
+    : 'https://safaricom.co.ke';
+
+const pendingTransactions = new Map(); // Using Map for better performance than {}
+
+// =======================
+// UTILITIES
+// =======================
+
+// Cleanup: Removes transactions older than 15 mins
+setInterval(() => {
+    const now = Date.now();
+    for (const [id, tx] of pendingTransactions) {
+        if (now - tx.createdAt > 15 * 60 * 1000) pendingTransactions.delete(id);
     }
-  });
-});
+}, 5 * 60 * 1000);
 
-// =======================
-// MPESA CONFIGURATION
-// =======================
-const CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY;
-const CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET;
-const BUSINESS_SHORTCODE = process.env.MPESA_BUSINESS_SHORTCODE || '174379';
-const PASSKEY = process.env.MPESA_PASSKEY;
-const CALLBACK_URL = process.env.CALLBACK_URL;
-
-// =======================
-// DARARA API URLS
-// =======================
-const AUTH_URL =
-  'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-
-const STK_URL =
-  'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-
-const QUERY_URL =
-  'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
-
-// =======================
-// MEMORY TRANSACTIONS
-// =======================
-const pendingTransactions = {};
-
-// =======================
-// CLEAN OLD TRANSACTIONS
-// =======================
-function cleanOldTransactions() {
-  const now = Date.now();
-
-  Object.keys(pendingTransactions).forEach((id) => {
-    const transaction = pendingTransactions[id];
-    const age = now - new Date(transaction.createdAt).getTime();
-
-    if (age > 10 * 60 * 1000) {
-      delete pendingTransactions[id];
-    }
-  });
-}
-
-setInterval(cleanOldTransactions, 5 * 60 * 1000);
-
-// =======================
-// GET MPESA ACCESS TOKEN
-// =======================
 async function getAccessToken() {
-  try {
-    const auth = Buffer.from(
-      `${CONSUMER_KEY}:${CONSUMER_SECRET}`
-    ).toString('base64');
-
-    const response = await axios.get(AUTH_URL, {
-      headers: { Authorization: `Basic ${auth}` }
-    });
-
-    return response.data.access_token;
-
-  } catch (error) {
-    console.error('Access token error:', error.message);
-    throw error;
-  }
+    const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString('base64');
+    try {
+        const { data } = await axios.get(`${BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
+            headers: { Authorization: `Basic ${auth}` }
+        });
+        return data.access_token;
+    } catch (error) {
+        console.error('M-Pesa Auth Error:', error.response?.data || error.message);
+        throw new Error('Authentication with Safaricom failed');
+    }
 }
 
 // =======================
-// STK PUSH ROUTE
+// ROUTES
 // =======================
+
 app.post('/api/mpesa-stk-push', async (req, res) => {
-  try {
-    const { phoneNumber, amount, orderNumber } = req.body;
+    try {
+        let { phoneNumber, amount, orderNumber } = req.body;
 
-    if (!phoneNumber || !amount || !orderNumber) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields'
-      });
+        // 1. Better Phone Sanitization
+        let phone = phoneNumber.replace(/\D/g, ''); // Remove all non-digits
+        if (phone.startsWith('0')) phone = '254' + phone.slice(1);
+        if (phone.startsWith('7') || phone.startsWith('1')) phone = '254' + phone;
+
+        if (!/^254(7|1)\d{8}$/.test(phone)) {
+            return res.status(400).json({ success: false, message: 'Invalid Safaricom number' });
+        }
+
+        const token = await getAccessToken();
+        const timestamp = moment().format('YYYYMMDDHHmmss');
+        const password = Buffer.from(`${MPESA_BUSINESS_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
+
+        const { data } = await axios.post(`${BASE_URL}/mpesa/stkpush/v1/processrequest`, {
+            BusinessShortCode: MPESA_BUSINESS_SHORTCODE,
+            Password: password,
+            Timestamp: timestamp,
+            TransactionType: 'CustomerPayBillOnline',
+            Amount: Math.round(amount),
+            PartyA: phone,
+            PartyB: MPESA_BUSINESS_SHORTCODE,
+            PhoneNumber: phone,
+            CallBackURL: CALLBACK_URL,
+            AccountReference: `Order-${orderNumber}`,
+            TransactionDesc: `Pay for ${orderNumber}`
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        pendingTransactions.set(data.CheckoutRequestID, {
+            orderNumber,
+            status: 'PENDING',
+            createdAt: Date.now()
+        });
+
+        res.json({ success: true, checkoutRequestId: data.CheckoutRequestID });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-
-    // Format phone number
-    let phone = phoneNumber.replace(/^\+/, '').replace(/^0/, '254');
-
-    if (!phone.startsWith('254')) {
-      phone = '254' + phone;
-    }
-
-    phone = phone.replace(/\D/g, '');
-
-    // Validate phone
-    if (!/^254\d{9}$/.test(phone)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid phone number format'
-      });
-    }
-
-    const accessToken = await getAccessToken();
-
-    const timestamp = moment().format('YYYYMMDDHHmmss');
-
-    const password = Buffer.from(
-      `${BUSINESS_SHORTCODE}${PASSKEY}${timestamp}`
-    ).toString('base64');
-
-    const stkRequest = {
-      BusinessShortCode: BUSINESS_SHORTCODE,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: 'CustomerPayBillOnline',
-      Amount: Math.round(amount),
-      PartyA: phone,
-      PartyB: BUSINESS_SHORTCODE,
-      PhoneNumber: phone,
-      CallBackURL: CALLBACK_URL,
-      AccountReference: orderNumber,
-      TransactionDesc: `Payment for order ${orderNumber}`
-    };
-
-    const response = await axios.post(STK_URL, stkRequest, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    // Use real CheckoutRequestID
-    const checkoutRequestId = response.data.CheckoutRequestID;
-
-    pendingTransactions[checkoutRequestId] = {
-      orderNumber,
-      checkoutRequestId,
-      status: 'PENDING',
-      createdAt: new Date()
-    };
-
-    res.json({
-      success: true,
-      message: 'STK Push sent successfully',
-      checkoutRequestId
-    });
-
-  } catch (error) {
-    console.error(
-      'STK Push Error:',
-      error.response?.data || error.message
-    );
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to send STK Push'
-    });
-  }
 });
 
-// =======================
-// MPESA CALLBACK
-// =======================
 app.post('/mpesa-callback', (req, res) => {
-  try {
-    const result = req.body?.Body?.stkCallback;
+    const { Body: { stkCallback } } = req.body;
+    
+    console.log(`Callback received for ID: ${stkCallback.CheckoutRequestID}`);
 
-    if (!result) {
-      console.warn('Unexpected callback body:', req.body);
-      return res.json({});
+    if (pendingTransactions.has(stkCallback.CheckoutRequestID)) {
+        const tx = pendingTransactions.get(stkCallback.CheckoutRequestID);
+        
+        if (stkCallback.ResultCode === 0) {
+            tx.status = 'COMPLETED';
+            tx.receipt = stkCallback.CallbackMetadata.Item.find(i => i.Name === 'MpesaReceiptNumber')?.Value;
+        } else {
+            tx.status = 'FAILED';
+        }
     }
-
-    const checkoutRequestId = result.CheckoutRequestID;
-    const resultCode = result.ResultCode;
-    const resultDesc = result.ResultDesc;
-
-    console.log('Callback:', {
-      checkoutRequestId,
-      resultCode,
-      resultDesc
-    });
-
-    if (pendingTransactions[checkoutRequestId]) {
-
-      if (resultCode === 0) {
-
-        pendingTransactions[checkoutRequestId].status = 'COMPLETED';
-
-        const metadata = result.CallbackMetadata?.Item || [];
-
-        const receipt = metadata.find(
-          (item) => item.Name === 'MpesaReceiptNumber'
-        )?.Value;
-
-        pendingTransactions[checkoutRequestId].mpesaReceiptNumber = receipt;
-
-      } else {
-
-        pendingTransactions[checkoutRequestId].status = 'FAILED';
-
-      }
-    }
-
-    res.json({});
-
-  } catch (error) {
-    console.error('Callback error:', error);
-    res.json({});
-  }
+    
+    // Always acknowledge Safaricom with 200 OK
+    res.status(200).send('Success');
 });
 
-// =======================
-// CHECK PAYMENT STATUS
-// =======================
-app.post('/api/check-payment-status', async (req, res) => {
-  try {
-
-    const { checkoutRequestId } = req.body;
-
-    if (!checkoutRequestId) {
-      return res.status(400).json({
-        success: false,
-        message: 'CheckoutRequestID required'
-      });
-    }
-
-    if (pendingTransactions[checkoutRequestId]) {
-      return res.json({
-        success: true,
-        status: pendingTransactions[checkoutRequestId].status
-      });
-    }
-
-    const accessToken = await getAccessToken();
-
-    const timestamp = moment().format('YYYYMMDDHHmmss');
-
-    const password = Buffer.from(
-      `${BUSINESS_SHORTCODE}${PASSKEY}${timestamp}`
-    ).toString('base64');
-
-    const queryRequest = {
-      BusinessShortCode: BUSINESS_SHORTCODE,
-      Password: password,
-      Timestamp: timestamp,
-      CheckoutRequestID: checkoutRequestId
-    };
-
-    const response = await axios.post(QUERY_URL, queryRequest, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    res.json({
-      success: true,
-      status: response.data.ResultCode === 0
-        ? 'COMPLETED'
-        : 'PENDING'
-    });
-
-  } catch (error) {
-
-    console.error('Query error:', error.message);
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to check payment status'
-    });
-
-  }
+app.get('/api/check-status/:id', (req, res) => {
+    const tx = pendingTransactions.get(req.params.id);
+    if (!tx) return res.status(404).json({ success: false, message: 'Transaction expired or not found' });
+    res.json({ success: true, status: tx.status, receipt: tx.receipt || null });
 });
 
-// =======================
-// HEALTH CHECK
-// =======================
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'Server running',
-    time: new Date()
-  });
-});
-
-// =======================
-// START SERVER
-// =======================
 const PORT = process.env.PORT || 3000;
-
-if (
-  process.env.LOCAL === 'true' ||
-  process.env.NODE_ENV !== 'production'
-) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log('M-Pesa Daraja API active');
-  });
-}
-
-// Export for serverless
-module.exports = app;
+app.listen(PORT, () => console.log(`🚀 Live on port ${PORT}`));
