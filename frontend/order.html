@@ -1,885 +1,853 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link href="style.css" rel="stylesheet">
-    <title>Place Your Order - Remedy Store</title>
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      // Shopping Cart Functionality
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-      function addToCart(productName, price) {
-        alert('Added: ' + productName + ' - KES ' + price);
-        console.log('addToCart called with:', productName, price);
-        const existingItem = cart.find(item => item.name === productName);
-        
-        if (existingItem) {
-          existingItem.quantity++;
-        } else {
-          cart.push({ name: productName, price: price, quantity: 1 });
-        }
-        
-        console.log('Cart after adding:', cart);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartUI();
-        showAddToCartNotification(productName);
-      }
-
-      function updateCartUI() {
-        const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-        const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        document.getElementById('cart-count').textContent = cartCount;
-        document.getElementById('cart-total').textContent = 'KES ' + cartTotal.toLocaleString();
-      }
-
-      function showAddToCartNotification(productName) {
-        const notification = document.createElement('div');
-        notification.className = 'alert alert-success alert-dismissible fade show';
-        notification.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 9999; min-width: 300px;';
-        notification.innerHTML = `
-          <strong>✓ Added to Cart!</strong> ${productName} has been added to your shopping cart.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => notification.remove(), 3000);
-      }
-
-      function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        const alertClass = type === 'success' ? 'alert-success' : type === 'danger' ? 'alert-danger' : 'alert-info';
-        toast.className = `alert ${alertClass} alert-dismissible fade show`;
-        toast.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 9999; min-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
-        toast.innerHTML = `
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => toast.remove(), 150);
-        }, 4000);
-      }
-
-      function removeFromCart(index) {
-        cart.splice(index, 1);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartUI();
-        displayCartItems();
-      }
-
-      function displayCartItems() {
-        const cartItemsDiv = document.getElementById('cart-items');
-        if (cart.length === 0) {
-          cartItemsDiv.innerHTML = '<p class="text-muted">Your cart is empty</p>';
-          return;
-        }
-
-        cartItemsDiv.innerHTML = cart.map((item, index) => `
-          <div class="card mb-2">
-            <div class="card-body p-3">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h6 class="mb-1">${item.name}</h6>
-                  <p class="mb-0"><small class="text-muted">KES ${item.price} × ${item.quantity} = KES ${(item.price * item.quantity).toLocaleString()}</small></p>
-                </div>
-                <div class="col-auto">
-                  <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">Remove</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Initialize cart on page load
-      window.addEventListener('load', () => {
-        updateCartUI();
-        displayCartItems();
-      });
-
-      // Checkout Functionality
-      function openCheckout() {
-        if (cart.length === 0) {
-          alert('Your cart is empty! Please add items before checkout.');
-          return;
-        }
-        displayCheckoutSummary();
-        const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
-        checkoutModal.show();
-      }
-
-      function displayCheckoutSummary() {
-        const summaryDiv = document.getElementById('checkout-summary');
-        const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const shippingFee = 50;
-        const tax = Math.round(cartTotal * 0.005);
-        const grandTotal = cartTotal + shippingFee + tax;
-
-        summaryDiv.innerHTML = `
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h6 class="mb-0">Order Summary</h6>
-            </div>
-            <div class="card-body">
-              ${cart.map(item => `
-                <div class="d-flex justify-content-between mb-2">
-                  <span>${item.name} × ${item.quantity}</span>
-                  <span>KES ${(item.price * item.quantity).toLocaleString()}</span>
-                </div>
-              `).join('')}
-              <hr>
-              <div class="d-flex justify-content-between mb-2">
-                <span>Subtotal:</span>
-                <span>KES ${cartTotal.toLocaleString()}</span>
-              </div>
-              <div class="d-flex justify-content-between mb-2">
-                <span>Shipping:</span>
-                <span>KES ${shippingFee.toLocaleString()}</span>
-              </div>
-              <div class="d-flex justify-content-between mb-3">
-                <span>Tax (0.5%):</span>
-                <span>KES ${tax.toLocaleString()}</span>
-              </div>
-              <hr>
-              <div class="d-flex justify-content-between fs-5">
-                <strong>Grand Total:</strong>
-                <strong class="text-success">KES ${grandTotal.toLocaleString()}</strong>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      function placeOrder(event) {
-        // Prevent default if called as form submit
-        if (event) {
-          event.preventDefault();
-        }
-
-        const fullName = document.getElementById('fullName').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const address = document.getElementById('address').value.trim();
-        const city = document.getElementById('city').value.trim();
-        
-        // Get selected payment method from radio buttons
-        const paymentMethodElement = document.querySelector('input[name="paymentMethod"]:checked');
-        const paymentMethod = paymentMethodElement ? paymentMethodElement.value : '';
-
-        // Validation
-        if (!fullName) {
-          alert('Please enter your full name!');
-          document.getElementById('fullName').focus();
-          return false;
-        }
-        if (!email || !email.includes('@')) {
-          alert('Please enter a valid email address!');
-          document.getElementById('email').focus();
-          return false;
-        }
-        if (!phone || phone.length < 10) {
-          alert('Please enter a valid phone number (at least 10 digits)!');
-          document.getElementById('phone').focus();
-          return false;
-        }
-        if (!address) {
-          alert('Please enter your street address!');
-          document.getElementById('address').focus();
-          return false;
-        }
-        if (!city) {
-          alert('Please enter your city!');
-          document.getElementById('city').focus();
-          return false;
-        }
-        if (!paymentMethod) {
-          alert('Please select a payment method!');
-          return false;
-        }
-
-        if (cart.length === 0) {
-          alert('Your cart is empty! Please add items before placing an order.');
-          return false;
-        }
-
-        // If M-Pesa is selected, show M-Pesa payment prompt
-        if (paymentMethod === 'M-Pesa') {
-          showMpesaPayment(fullName, email, phone, address, city);
-          return false;
-        }
-
-        // For other payment methods, proceed normally
-        completeOrder(fullName, email, phone, address, city, paymentMethod);
-        return false;
-      }
-
-      function showMpesaPayment(fullName, email, phone, address, city) {
-        // Show M-Pesa payment modal
-        const mpesaModal = new bootstrap.Modal(document.getElementById('mpesaPaymentModal'));
-        document.getElementById('mpesaPhoneInput').value = phone;
-        document.getElementById('mpesaPhoneInput').focus();
-        mpesaModal.show();
-        
-        // Store order details for processing
-        window.pendingOrderData = {
-          fullName, email, phone, address, city,
-          paymentMethod: 'M-Pesa'
-        };
-      }
-
-      function processM2UPayment() {
-        const mpesaPhone = document.getElementById('mpesaPhoneInput').value.trim();
-
-        // Validate phone
-        if (!mpesaPhone) {
-          showToast('Please enter a phone number!', 'danger');
-          document.getElementById('mpesaPhoneInput').focus();
-          return false;
-        }
-
-        // Validate phone format - must be 10-12 digits
-        const phoneRegex = /^[0-9]{10,12}$/;
-        if (!phoneRegex.test(mpesaPhone.replace(/\D/g, ''))) {
-          showToast('Please enter a valid M-Pesa phone number (10-12 digits)!', 'danger');
-          document.getElementById('mpesaPhoneInput').focus();
-          return false;
-        }
-
-        // Disable button
-        const payBtn = document.querySelector('#mpesaPaymentModal .btn-success');
-        payBtn.disabled = true;
-        const originalText = payBtn.innerHTML;
-        payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending STK...';
-
-        // Get order data
-        const { fullName, email, phone, address, city, paymentMethod } = window.pendingOrderData;
-        const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const shippingFee = 50;
-        const tax = Math.round(cartTotal * 0.005);
-        const grandTotal = cartTotal + shippingFee + tax;
-
-        // Show toast notification
-        showToast('📲 Sending M-Pesa STK prompt to ' + mpesaPhone + '...', 'info');
-
-        // Send to backend API
-        fetch('/api/mpesa-stk-push', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            phoneNumber: mpesaPhone,
-            amount: grandTotal,
-            orderNumber: 'ORD-' + Date.now(),
-            customerName: fullName
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            showToast('✅ STK prompt sent! Check your phone and enter your PIN', 'success');
-
-            // Store checkout request ID for status checking
-            window.checkoutRequestId = data.checkoutRequestId;
-            window.orderAmount = grandTotal;
-
-            // Start polling for payment status
-            setTimeout(() => {
-              pollPaymentStatus(data.checkoutRequestId, fullName, email, phone, address, city, paymentMethod, mpesaPhone);
-            }, 3000);
-
-            // Close modal after brief delay
-            setTimeout(() => {
-              const modal = bootstrap.Modal.getInstance(document.getElementById('mpesaPaymentModal'));
-              if (modal) {
-                modal.hide();
-              }
-              payBtn.disabled = false;
-              payBtn.innerHTML = originalText;
-            }, 2000);
-          } else {
-            showToast('❌ ' + (data.message || 'Failed to send STK'), 'danger');
-            payBtn.disabled = false;
-            payBtn.innerHTML = originalText;
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          showToast('❌ Network error. Please check your connection and try again.', 'danger');
-          payBtn.disabled = false;
-          payBtn.innerHTML = originalText;
-        });
-
-        return false;
-      }
-
-      function pollPaymentStatus(checkoutRequestId, fullName, email, phone, address, city, paymentMethod, mpesaPhone) {
-        let pollCount = 0;
-        const maxPolls = 60; // Poll for up to 60 seconds (1 minute)
-
-        const pollInterval = setInterval(() => {
-          pollCount++;
-
-          fetch('/api/check-payment-status', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              checkoutRequestId: checkoutRequestId
-            })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              if (data.status === 'COMPLETED') {
-                // Payment successful
-                clearInterval(pollInterval);
-                showToast('💚 Payment successful! Processing your order...', 'success');
-                completeOrder(fullName, email, phone, address, city, paymentMethod, mpesaPhone);
-              } else if (data.status === 'FAILED') {
-                // Payment failed
-                clearInterval(pollInterval);
-                showToast('❌ Payment was cancelled or failed. Please try again.', 'danger');
-              }
-            }
-
-            // Stop polling after max attempts
-            if (pollCount >= maxPolls) {
-              clearInterval(pollInterval);
-              showToast('⏱️ Payment check timeout. Please verify your payment on M-Pesa and refresh the page.', 'warning');
-            }
-          })
-          .catch(error => {
-            console.error('Poll error:', error);
-            if (pollCount >= maxPolls) {
-              clearInterval(pollInterval);
-            }
-          });
-        }, 2000); // Poll every 2 seconds
-      }
-
-      function completeOrder(fullName, email, phone, address, city, paymentMethod, mpesaPhone = null) {
-        // Disable button to prevent double submission
-        const placeOrderBtn = document.querySelector('.modal-footer .btn-success');
-        if (placeOrderBtn) {
-          placeOrderBtn.disabled = true;
-          placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing Order...';
-        }
-
-        // Show processing toast
-        showToast('⏳ Processing your order...', 'info');
-
-        // Simulate processing delay
-        setTimeout(() => {
-          try {
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const shippingFee = 50;
-            const tax = Math.round(subtotal * 0.005);
-            const grandTotal = subtotal + shippingFee + tax;
-
-            const orderData = {
-              orderNumber: 'ORD-' + Date.now(),
-              customerName: fullName,
-              email: email,
-              phone: phone,
-              mpesaPhone: mpesaPhone || phone,
-              address: address,
-              city: city,
-              paymentMethod: paymentMethod,
-              items: cart.slice(), // Create copy of cart
-              orderDate: new Date().toLocaleString(),
-              status: 'CONFIRMED',
-              subtotal: subtotal,
-              shipping: shippingFee,
-              tax: tax,
-              total: grandTotal
-            };
-
-            // Save order to localStorage
-            let orders = JSON.parse(localStorage.getItem('orders')) || [];
-            orders.push(orderData);
-            localStorage.setItem('orders', JSON.stringify(orders));
-
-            // Show success toast
-            showToast(`✅ Order ${orderData.orderNumber} confirmed! Redirecting...`, 'success');
-
-            // Show success message in modal area
-            const successMessage = document.getElementById('successMessage');
-            successMessage.innerHTML = `
-              <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <div class="mb-3">
-                  <h5>✓ Order Placed Successfully!</h5>
-                </div>
-                <div class="mb-3">
-                  <p class="mb-1"><strong>Order Number:</strong> <span class="text-success fw-bold">${orderData.orderNumber}</span></p>
-                  <p class="mb-1"><strong>Total Amount:</strong> <span class="text-success fw-bold">KES ${orderData.total.toLocaleString()}</span></p>
-                  <p class="mb-1"><strong>Payment Method:</strong> ${paymentMethod}</p>
-                  <p class="mb-0"><strong>Confirmation Email:</strong> Sent to ${email}</p>
-                </div>
-                <hr>
-                <p class="mb-0 text-muted small">You will be redirected to view your order in 3 seconds...</p>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            `;
-
-            // Clear cart
-            cart = [];
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartUI();
-            displayCartItems();
-            
-            // Close checkout modal
-            const checkoutModal = document.getElementById('checkoutModal');
-            const bsModal = bootstrap.Modal.getInstance(checkoutModal);
-            if (bsModal) {
-              bsModal.hide();
-            }
-
-            // Reset form
-            document.getElementById('checkoutForm').reset();
-            
-            // Re-enable button
-            if (placeOrderBtn) {
-              placeOrderBtn.disabled = false;
-              placeOrderBtn.innerHTML = 'Place Order';
-            }
-
-            // Redirect to orders page after 3 seconds
-            setTimeout(() => {
-              window.location.href = 'orders.html?neworder=' + orderData.orderNumber;
-            }, 3000);
-
-          } catch (error) {
-            console.error('Error placing order:', error);
-            showToast('❌ An error occurred. Please try again.', 'danger');
-            if (placeOrderBtn) {
-              placeOrderBtn.disabled = false;
-              placeOrderBtn.innerHTML = 'Place Order';
-            }
-          }
-        }, 1500);
-
-        return false;
-      }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Natural Remedies - Remedy Store</title>
+  <meta name="description" content="Explore our complete apothecary of wildcrafted remedies, cold-pressed oils, and superfoods with instant M-Pesa checkout.">
+  
+  <!-- Google Fonts & Bootstrap Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar bg-body-tertiary fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="Index.html">REMEDY STORE</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Welcome</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar text-center">
+    <span>🌿 <strong>100% Wildcrafted & Organic</strong> • Free Delivery on Orders Over KES 2,500 • <span class="badge-accent">Instant M-Pesa STK Push</span></span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="Index.html">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </a>
+
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+          <i class="bi bi-bag"></i>
+          <span class="cart-counter">0</span>
+        </button>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navOffcanvas">
+          <span class="navbar-toggler-icon"></span>
+        </button>
       </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link" href="Index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="about.html">About us</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="blogs.html">Blogs</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="order.html">Place your order</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="orders.html">My Orders</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contacts.html">Contacts us</a>
-          </li>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="order.html">Shop Remedies</a></li>
+          <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="blogs.html">Wellness Journal</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+          <li class="nav-item"><a class="nav-link" href="contacts.html">Contact Us</a></li>
         </ul>
-        <form class="d-flex mt-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+
+        <div class="d-none d-lg-flex align-items-center gap-3">
+          <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+            <i class="bi bi-bag-check"></i>
+            <span>Cart</span>
+            <span class="cart-counter">0</span>
+          </button>
+        </div>
       </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Drawer -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="navOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav mb-4">
+        <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link active" href="order.html">Shop Remedies</a></li>
+        <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="blogs.html">Wellness Journal</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+        <li class="nav-item"><a class="nav-link" href="contacts.html">Contact Us</a></li>
+      </ul>
     </div>
   </div>
-</nav>
 
-<div class="container-fluid mt-5 pt-5">
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="row">
-        <div class="col-md-12">
-          <h1 class="mb-4">Place Your Order</h1>
-          <p class="lead">Browse our collection of premium natural remedies and wellness products.</p>
-        </div>
-      </div>
-
-  <div class="row mt-4">
-    <!-- Cayenne -->
-    <div class="col-md-6 mb-5">
-      <div class="card h-100">
-        <img src="https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/74/9156623/1.jpg?1408" class="card-img-top" alt="Cayenne Pepper">
-        <div class="card-body">
-          <h5 class="card-title">Cayenne Pepper</h5>
-          <p class="card-text">
-            <strong>Benefits:</strong> Cayenne pepper is rich in capsaicin, a compound that boosts metabolism and improves blood circulation. It helps reduce inflammation, aids digestion, and can help relieve pain. Used traditionally to support heart health and immune function.
-          </p>
-          <p class="text-muted"><small><strong>Usage:</strong> Add to meals, smoothies, or take as a supplement capsule.</small></p>
-          <p class="text-success"><strong>KES 200</strong></p>
-          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Cayenne Pepper', 200);">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-
-
-<!-- Castor Oil -->
-<div class="col-md-6 mb-5">
-  <div class="card h-100">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL27kXn1xMEkAvLbVfZVia3XJrmG2zTKyCQQ&s" class="card-img-top" alt="Castor Oil">
-    <div class="card-body">
-      <h5 class="card-title">Castor Oil</h5>
-      <p class="card-text">
-        <strong>Benefits:</strong> Castor oil promotes hair growth, moisturizes skin, supports joint health, and aids digestion.
+  <!-- Header Banner -->
+  <section class="py-5 bg-white border-bottom mb-4">
+    <div class="container text-center">
+      <span class="remedy-badge badge-organic mb-2 d-inline-block">Curated Natural Apothecary</span>
+      <h1 class="display-5 fw-bold mb-2">Our Natural Remedies</h1>
+      <p class="text-muted mx-auto" style="max-width: 650px;">
+        100% pure wildcrafted botanicals, cold-pressed therapeutic oils, and ancient African superfoods formulated to nourish body, mind, and spirit.
       </p>
-      <p class="text-muted"><small><strong>Usage:</strong> Apply to scalp and hair, massage into skin, or use as a natural laxative in small amounts.</small></p>
-      <p class="text-success"><strong>KES 800</strong></p>
-      <button type="button" class="btn btn-success w-100" onclick="return addToCart('Castor Oil', 800);">Add to Cart</button>
     </div>
-  </div>
-</div>
+  </section>
 
-<!-- Honey -->
-<div class="col-md-6 mb-5">
-  <div class="card h-100">
-    <img src="data:image/jpeg;base64,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" class="card-img-top" alt="Honey">
-    <div class="card-body">
-      <h5 class="card-title">Honey</h5>
-      <p class="card-text">
-        <strong>Benefits:</strong> Honey boosts immunity, soothes sore throats, aids wound healing, and provides natural energy.
-      </p>
-      <p class="text-muted"><small><strong>Usage:</strong> Add to tea, spread on bread, use in baking, or apply to skin for healing.</small></p>
-      <p class="text-success"><strong>KES 1,200</strong></p>
-      <button type="button" class="btn btn-success w-100" onclick="return addToCart('Honey', 1200);">Add to Cart</button>
-    </div>
-  </div>
-</div>
-
-<!-- Hibiscus -->
-<div class="col-md-6 mb-5">
-  <div class="card h-100">
-    <img src="https://i.ebayimg.com/images/g/RMsAAOSwYB1gG8R8/s-l1600.webp" class="card-img-top" alt="Hibiscus">
-    <div class="card-body">
-      <h5 class="card-title">Hibiscus</h5>
-      <p class="card-text">
-        <strong>Benefits:</strong> Hibiscus lowers blood pressure, supports liver health, boosts immunity, and aids weight management.
-      </p>
-      <p class="text-muted"><small><strong>Usage:</strong> Brew as tea, add to smoothies, or use in natural remedies.</small></p>
-      <p class="text-success"><strong>KES 900</strong></p>
-      <button type="button" class="btn btn-success w-100" onclick="return addToCart('Hibiscus', 900);">Add to Cart</button>
-    </div>
-  </div>
-</div>
-
-<!-- Moringa -->
-<div class="col-md-6 mb-5">
-  <div class="card h-100">
-    <img src="https://i.ebayimg.com/images/g/YnwAAOSwl5Vns~c9/s-l960.webp" class="card-img-top" alt="Moringa">
-    <div class="card-body">
-      <h5 class="card-title">Moringa</h5>
-      <p class="card-text">
-        <strong>Benefits:</strong> Moringa is rich in vitamins, minerals, and antioxidants. It supports immunity, energy, and overall wellness.
-      </p>
-      <p class="text-muted"><small><strong>Usage:</strong> Add powder to smoothies, soups, or tea.</small></p>
-      <p class="text-success"><strong>KES 1,500</strong></p>
-      <button type="button" class="btn btn-success w-100" onclick="return addToCart('Moringa', 1500);">Add to Cart</button>
-    </div>
-  </div>
-</div>
-
-<!-- Slippery Elm -->
-<div class="col-md-6 mb-5">
-  <div class="card h-100">
-    <img src="https://m.media-amazon.com/images/I/81oBKRoe3NL._AC_SY300_SX300_QL70_ML2_.jpg" class="card-img-top" alt="Slippery Elm">
-    <div class="card-body">
-      <h5 class="card-title">Slippery Elm</h5>
-      <p class="card-text">
-        <strong>Benefits:</strong> Slippery elm soothes digestive issues, supports throat health, and reduces inflammation.
-      </p>
-      <p class="text-muted"><small><strong>Usage:</strong> Mix powder with water for a soothing drink or add to herbal remedies.</small></p>
-      <p class="text-success"><strong>KES 1,400</strong></p>
-      <button type="button" class="btn btn-success w-100" onclick="return addToCart('Slippery Elm', 1400);">Add to Cart</button>
-    </div>
-  </div>
-</div>
-
-
-    <!-- Turmeric -->
-    <div class="col-md-6 mb-5">
-      <div class="card h-100">
-        <img src="https://media.istockphoto.com/id/1315354434/photo/spoon-of-turmeric-powder.jpg?s=612x612&w=0&k=20&c=aK9DAyX8Jh1bUQuWs_KZ0IL3I73hP8dgHFZXDPzUkRM=" class="card-img-top" alt="Turmeric Powder">
-        <div class="card-body">
-          <h5 class="card-title">Turmeric Powder</h5>
-          <p class="card-text">
-            <strong>Benefits:</strong> Turmeric contains curcumin, a powerful anti-inflammatory and antioxidant compound. It supports joint health, reduces inflammation, aids digestion, and may improve brain function. Traditionally used in Ayurvedic medicine for centuries.
-          </p>
-          <p class="text-muted"><small><strong>Usage:</strong> Add to curries, golden milk, teas, or take as capsules with black pepper for better absorption.</small></p>
-          <p class="text-success"><strong>KES 200</strong></p>
-          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Turmeric Powder', 200);">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Activated Charcoal -->
-    <div class="col-md-6 mb-5">
-      <div class="card h-100">
-        <img src="https://ke.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/32/6139803/1.jpg?2999" class="card-img-top" alt="Activated Charcoal">
-        <div class="card-body">
-          <h5 class="card-title">Activated Charcoal</h5>
-          <p class="card-text">
-            <strong>Benefits:</strong> Activated charcoal is known for its detoxifying properties, helping to bind toxins and remove them from the body. It supports digestive health, improves energy levels, and promotes clearer skin. Often used for natural detoxification.
-          </p>
-          <p class="text-muted"><small><strong>Usage:</strong> Take as capsules or powder mixed with water. Use for short-term detox or daily wellness.</small></p>
-          <p class="text-success"><strong>KES 200</strong></p>
-          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Activated Charcoal', 200);">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ashwagandha -->
-    <div class="col-md-6 mb-5">
-      <div class="card h-100">
-        <img src="https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTH8-nNtW3Wwve6YDaDyYZP-O0vC1o6_Z3f-S4WcpHFrsQxtVQFbG7DTVfi1hsGxzmance6ZGLePoBZc2hGfGfdE6kmGRmP6jcXSQGPZVOlRFsX_RfAZB75gQGGlvP9sPhWIwZmtg&usqp=CAc" class="card-img-top" alt="Ashwagandha">
-        <div class="card-body">
-          <h5 class="card-title">Ashwagandha</h5>
-          <p class="card-text">
-            <strong>Benefits:</strong> Ashwagandha is an adaptogenic herb that helps reduce stress and anxiety, improves sleep quality, and supports mental clarity. It boosts energy levels, enhances immune function, and may help balance cortisol levels naturally.
-          </p>
-          <p class="text-muted"><small><strong>Usage:</strong> Take as capsules, powder mixed in warm milk or smoothies, or as herbal tea.</small></p>
-          <p class="text-success"><strong>KES 200</strong></p>
-          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Ashwagandha', 200);">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Flax Seed -->
-    <div class="col-md-6 mb-5">
-      <div class="card h-100">
-        <img src="https://ke.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/96/4305623/1.jpg?2562" class="card-img-top" alt="Flax Seeds">
-        <div class="card-body">
-          <h5 class="card-title">Flax Seeds</h5>
-          <p class="card-text">
-            <strong>Benefits:</strong> Flax seeds are rich in omega-3 fatty acids, lignans, and fiber, supporting heart health and reducing inflammation. They aid digestion, promote hormonal balance, support brain function, and provide excellent plant-based protein.
-          </p>
-          <p class="text-muted"><small><strong>Usage:</strong> Grind seeds and add to smoothies, cereals, or baked goods. Can also consume whole or make flax milk.</small></p>
-          <p class="text-success"><strong>KES 300</strong></p>
-          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Flax Seeds', 300);">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chia Seeds -->
-    <div class="col-md-6 mb-5">
-      <div class="card h-100">
-        <img src="https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/22/3685313/1.jpg?5193" class="card-img-top" alt="Chia Seeds">
-        <div class="card-body">
-          <h5 class="card-title">Chia Seeds</h5>
-          <p class="card-text">
-            <strong>Benefits:</strong> Chia seeds are superfood packed with omega-3 fatty acids, fiber, and antioxidants. They support digestive health, provide sustained energy, improve hydration, support heart health, and help maintain stable blood sugar levels.
-          </p>
-          <p class="text-muted"><small><strong>Usage:</strong> Soak in water or milk for chia pudding, add to smoothies, cereals, or sprinkle on salads.</small></p>
-          <p class="text-success"><strong>KES 1,600</strong></p>
-          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Chia Seeds', 1600);">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-      
-
-    <!-- Stinging Nettle -->
-    <div class="col-md-6 mb-5">
-      <div class="card h-100">
-        <img src="https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSGFQGFntxIXLcS9ID4NsIoxJeQd8OQpMxXgOQNQSaBi3aV3oUUTKnmUcpA4synNOID_YVsTPmmn10yRlWo0SxNzN7zKaIg82B7TLXvsZibHGYGD0Vd-YhdIPigM7qDO2BKyln-7R_kR90&usqp=CAc" class="card-img-top" alt="Stinging Nettle">
-        <div class="card-body">
-          <h5 class="card-title">Stinging Nettle</h5>
-          <p class="card-text">
-            <strong>Benefits:</strong> Stinging nettle is nutrient-dense, rich in vitamins and minerals, supporting joint health and reducing arthritis symptoms. It enhances kidney function, supports hormonal balance, improves circulation, and strengthens immunity naturally.
-          </p>
-          <p class="text-muted"><small><strong>Usage:</strong> Brew as herbal tea, take as capsules or dried leaf infusions. Best consumed daily for optimal benefits.</small></p>
-          <p class="text-success"><strong>KES 300</strong></p>
-          <button type="button" class="btn btn-success w-100" onclick="return addToCart('Stinging Nettle', 300);">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-4 mb-5">
-    <div class="col-md-12">
-      <h4>Have Questions?</h4>
-      <p>Contact us at info@remedystore.com or call +254 715224878</p>
-    </div>
-  </div>
-    </div>
-
-    <!-- Shopping Cart Sidebar -->
-    <div class="col-lg-4">
-      <div class="card sticky-top" style="top: 80px;">
-        <div class="card-header bg-success text-white">
-          <h5 class="mb-0">🛒 Shopping Cart <span class="badge bg-danger ms-2" id="cart-count">0</span></h5>
-        </div>
-        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-          <div id="cart-items">
-            <p class="text-muted">Your cart is empty</p>
-          </div>
-        </div>
-        <div class="card-footer">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <strong>Total:</strong>
-            <span id="cart-total" class="text-success fs-5">KES 0</span>
-          </div>
-          <button type="button" class="btn btn-success w-100 mb-2" onclick="return openCheckout();">Checkout</button>
-          <button type="button" class="btn btn-outline-secondary w-100" onclick="cart = []; localStorage.setItem('cart', JSON.stringify(cart)); updateCartUI(); displayCartItems();">Clear Cart</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  <!-- Shop Main Area -->
+  <div class="container mb-5">
     
-
-<!-- Checkout Modal -->
-<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title" id="checkoutModalLabel">Checkout</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Search & Filter Controls -->
+    <div class="row align-items-center g-3 mb-4">
+      <div class="col-lg-5 col-md-6">
+        <div class="search-input-wrap">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" id="catalogSearch" class="form-control" placeholder="Search remedies, benefits, or ingredients...">
+        </div>
       </div>
-      <div class="modal-body">
-        <div id="successMessage"></div>
-        
-        <div class="row">
-          <div class="col-md-6">
-            <h6 class="mb-3">Delivery Information</h6>
-            <form id="checkoutForm">
-              <div class="mb-3">
-                <label for="fullName" class="form-label">Full Name *</label>
-                <input type="text" class="form-control" id="fullName" required>
-              </div>
+      <div class="col-lg-4 col-md-6">
+        <select class="form-select py-2" id="sortSelect">
+          <option value="featured">Featured Remedies</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Highest Customer Rating</option>
+          <option value="name">Alphabetical (A-Z)</option>
+        </select>
+      </div>
+      <div class="col-lg-3 col-md-12 text-lg-end text-muted small">
+        Showing <strong id="productCountBadge">12</strong> natural remedies
+      </div>
+    </div>
 
-              <div class="mb-3">
-                <label for="email" class="form-label">Email Address *</label>
-                <input type="email" class="form-control" id="email" required>
-              </div>
+    <!-- Category Filter Pills -->
+    <div class="filter-pills" id="categoryFilterPills">
+      <button class="filter-pill active" data-category="all">All Remedies</button>
+      <button class="filter-pill" data-category="Powders & Spices">Powders & Spices</button>
+      <button class="filter-pill" data-category="Oils & Elixirs">Oils & Elixirs</button>
+      <button class="filter-pill" data-category="Raw Superfoods">Raw Superfoods</button>
+      <button class="filter-pill" data-category="Seeds & Superfoods">Seeds & Superfoods</button>
+      <button class="filter-pill" data-category="Herbal Teas">Herbal Teas</button>
+    </div>
 
-              <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number *</label>
-                <input type="tel" class="form-control" id="phone" placeholder="+254..." required>
-              </div>
+    <!-- Product Grid -->
+    <div class="row g-4" id="productsGrid">
+      <!-- Populated dynamically via JS -->
+    </div>
 
-              <div class="mb-3">
-                <label for="address" class="form-label">Street Address *</label>
-                <input type="text" class="form-control" id="address" required>
-              </div>
+    <!-- Empty search result alert -->
+    <div id="noResultsAlert" class="text-center py-5" style="display: none;">
+      <i class="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+      <h5>No remedies found</h5>
+      <p class="text-muted">Try searching with a different term or clear filters.</p>
+      <button class="btn btn-outline-success btn-sm" onclick="resetFilters()">Reset All Filters</button>
+    </div>
+  </div>
 
-              <div class="mb-3">
-                <label for="city" class="form-label">City/Town *</label>
-                <input type="text" class="form-control" id="city" required>
+  <!-- Quick View Product Modal -->
+  <div class="modal fade" id="quickViewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content modal-content-remedy">
+        <div class="modal-header modal-header-remedy">
+          <h5 class="modal-title" id="qvTitle">Product Name</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-4">
+            <div class="col-md-5">
+              <img id="qvImage" src="" alt="" class="img-fluid rounded-3 shadow-sm w-100" style="max-height: 320px; object-fit: cover;">
+            </div>
+            <div class="col-md-7">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="remedy-badge badge-organic" id="qvBadge">Organic</span>
+                <span class="text-muted small" id="qvCategory">Category</span>
               </div>
-
-              <h6 class="mb-3 mt-4">Payment Method</h6>
-              <div class="mb-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="paymentMethod" id="mpesa" value="M-Pesa" required checked>
-                  <label class="form-check-label" for="mpesa">
-                    📱 M-Pesa (Recommended)
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="paymentMethod" id="bank" value="Bank Transfer">
-                  <label class="form-check-label" for="bank">
-                    🏦 Bank Transfer
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="Cash on Delivery">
-                  <label class="form-check-label" for="cod">
-                    💵 Cash on Delivery
-                  </label>
-                </div>
+              <div class="d-flex align-items-baseline gap-2 mb-3">
+                <h3 class="text-success fw-bold mb-0" id="qvPrice">KES 0</h3>
+                <span class="text-muted text-decoration-line-through small" id="qvOriginalPrice">KES 0</span>
               </div>
-            </form>
-          </div>
+              
+              <h6 class="fw-bold mb-1 text-primary"><i class="bi bi-heart-pulse me-1"></i> Health Benefits:</h6>
+              <p class="small text-muted mb-3" id="qvBenefits"></p>
 
-          <div class="col-md-6">
-            <div id="checkout-summary"></div>
-            
-            <div class="alert alert-info mt-3">
-              <small>
-                <strong>Delivery Time:</strong> 2-3 business days<br>
-                <strong>Shipping Fee:</strong> KES 50 (Free for orders over KES 1000)<br>
-                <strong>Return Policy:</strong> 14 days money-back guarantee
-              </small>
+              <h6 class="fw-bold mb-1 text-primary"><i class="bi bi-cup-straw me-1"></i> Recommended Usage:</h6>
+              <p class="small text-muted mb-3" id="qvUsage"></p>
+
+              <h6 class="fw-bold mb-1 text-primary"><i class="bi bi-flower1 me-1"></i> Ingredients:</h6>
+              <p class="small text-muted mb-4" id="qvIngredients"></p>
+
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary-remedy flex-grow-1" id="qvAddBtn">
+                  <i class="bi bi-bag-plus"></i> Add to Cart
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success btn-lg" onclick="placeOrder(event)">Place Order</button>
+    </div>
+  </div>
+
+  <!-- Global Offcanvas Cart Drawer -->
+  <div class="offcanvas offcanvas-end offcanvas-cart" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <i class="bi bi-bag-check-fill text-success"></i> Your Shopping Cart
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cartDrawerItems">
+      <!-- Items dynamically populated -->
+    </div>
+    <div class="p-3 border-top bg-light" id="cartDrawerFooter">
+      <div class="d-flex justify-content-between mb-1 small">
+        <span class="text-muted">Subtotal:</span>
+        <strong id="drawerSubtotal">KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-1 small" id="drawerDiscountRow" style="display: none;">
+        <span class="text-success">Discount:</span>
+        <strong class="text-success" id="drawerDiscount">-KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-2 small">
+        <span class="text-muted">Standard Delivery:</span>
+        <span id="drawerShipping">KES 50</span>
+      </div>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between mb-3">
+        <span class="fw-bold">Total:</span>
+        <span class="fw-bold text-success fs-5" id="drawerGrandTotal">KES 0</span>
+      </div>
+      <div class="input-group input-group-sm mb-3">
+        <input type="text" class="form-control" id="couponInput" placeholder="Promo code (e.g. WELLNESS10)">
+        <button class="btn btn-outline-success" type="button" id="applyCouponBtn">Apply</button>
+      </div>
+      <button type="button" class="btn btn-primary-remedy w-100 py-2" onclick="openCheckoutModal()">
+        Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modern Checkout Modal -->
+  <div class="modal fade" id="checkoutModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content modal-content-remedy">
+        <div class="modal-header modal-header-remedy">
+          <h5 class="modal-title"><i class="bi bi-lock-fill me-2"></i> Secure Checkout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="checkoutForm" onsubmit="handlePlaceOrder(event)">
+            <div class="row g-4">
+              <!-- Customer & Delivery Form -->
+              <div class="col-lg-7">
+                <h6 class="fw-bold mb-3 border-bottom pb-2"><i class="bi bi-geo-alt me-1 text-success"></i> Delivery Information</h6>
+                
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Full Name *</label>
+                  <input type="text" class="form-control" id="orderFullName" placeholder="e.g. Grace Wanjiku" required>
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Email Address *</label>
+                    <input type="email" class="form-control" id="orderEmail" placeholder="grace@example.com" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">M-Pesa / Phone Number *</label>
+                    <input type="tel" class="form-control" id="orderPhone" placeholder="0712345678" required>
+                    <small class="text-muted" style="font-size: 0.72rem;">Safaricom number for STK prompt</small>
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">County of Residence *</label>
+                    <select class="form-select" id="orderCounty" required>
+                      <option value="">Select County</option>
+                      <option value="Nairobi" selected>Nairobi</option>
+                      <option value="Mombasa">Mombasa</option>
+                      <option value="Kisumu">Kisumu</option>
+                      <option value="Nakuru">Nakuru</option>
+                      <option value="Kiambu">Kiambu</option>
+                      <option value="Machakos">Machakos</option>
+                      <option value="Uasin Gishu">Uasin Gishu (Eldoret)</option>
+                      <option value="Kajiado">Kajiado</option>
+                      <option value="Kilifi">Kilifi</option>
+                      <option value="Nyeri">Nyeri</option>
+                      <option value="Meru">Meru</option>
+                      <option value="Kakamega">Kakamega</option>
+                      <option value="Kisii">Kisii</option>
+                      <option value="Other">Other County</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Town / Area / Estate *</label>
+                    <input type="text" class="form-control" id="orderCity" placeholder="e.g. Westlands, Kilimani" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Street / Building Address *</label>
+                  <input type="text" class="form-control" id="orderAddress" placeholder="e.g. Apartment 4B, Wood Avenue" required>
+                </div>
+
+                <!-- Payment Selection -->
+                <h6 class="fw-bold mt-4 mb-3 border-bottom pb-2"><i class="bi bi-credit-card me-1 text-success"></i> Payment Method</h6>
+                
+                <div class="d-flex flex-column gap-2 mb-3">
+                  <label class="p-3 border rounded-3 d-flex align-items-center justify-content-between cursor-pointer bg-light">
+                    <div class="d-flex align-items-center gap-3">
+                      <input type="radio" name="paymentOption" value="M-Pesa" checked class="form-check-input mt-0">
+                      <div>
+                        <strong>M-Pesa Express (STK Push)</strong>
+                        <div class="small text-muted">Instant prompt sent straight to your phone</div>
+                      </div>
+                    </div>
+                    <span class="badge bg-success">Recommended</span>
+                  </label>
+
+                  <label class="p-3 border rounded-3 d-flex align-items-center justify-content-between cursor-pointer">
+                    <div class="d-flex align-items-center gap-3">
+                      <input type="radio" name="paymentOption" value="Cash on Delivery" class="form-check-input mt-0">
+                      <div>
+                        <strong>Cash on Delivery</strong>
+                        <div class="small text-muted">Pay when order arrives (Nairobi & environs)</div>
+                      </div>
+                    </div>
+                    <i class="bi bi-cash text-muted fs-4"></i>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Order Summary Sidebar -->
+              <div class="col-lg-5">
+                <div class="bg-light p-3 rounded-4 border">
+                  <h6 class="fw-bold mb-3">Order Summary</h6>
+                  <div id="checkoutSummaryItems" style="max-height: 220px; overflow-y: auto;" class="mb-3">
+                    <!-- Items -->
+                  </div>
+                  <hr>
+                  <div class="d-flex justify-content-between mb-1 small">
+                    <span class="text-muted">Subtotal:</span>
+                    <strong id="checkoutSubtotal">KES 0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1 small" id="checkoutDiscountRow" style="display: none;">
+                    <span class="text-success">Discount:</span>
+                    <strong class="text-success" id="checkoutDiscount">-KES 0</strong>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1 small">
+                    <span class="text-muted">Delivery Fee:</span>
+                    <span id="checkoutShipping">KES 50</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-muted">Tax (0.5%):</span>
+                    <span id="checkoutTax">KES 0</span>
+                  </div>
+                  <hr>
+                  <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold">Grand Total:</span>
+                    <span class="fw-bold text-success fs-4" id="checkoutGrandTotal">KES 0</span>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary-remedy w-100 py-3 fw-bold" id="confirmOrderBtn">
+                    Confirm & Proceed <i class="bi bi-arrow-right ms-1"></i>
+                  </button>
+                  <div class="text-center mt-2 text-muted" style="font-size: 0.75rem;">
+                    <i class="bi bi-shield-lock me-1"></i> 256-bit SSL encrypted checkout
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- M-Pesa Payment Modal -->
-<div class="modal fade" id="mpesaPaymentModal" tabindex="-1" aria-labelledby="mpesaPaymentLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title" id="mpesaPaymentLabel">📱 M-Pesa Payment</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-info">
-          <small>
-            <strong>Pay to:</strong> 0715224878<br>
-            <strong>Service:</strong> Remedy Store Payment<br>
-            You will receive an STK prompt on your phone
-          </small>
-        </div>
+  <!-- Interactive M-Pesa STK Push Modal -->
+  <div class="modal fade" id="mpesaStkModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modal-content-remedy text-center p-4">
+        <div class="modal-body">
+          <div class="mpesa-stk-pulse">
+            <i class="bi bi-phone-vibrate"></i>
+          </div>
 
-        <div class="mb-3">
-          <label for="mpesaPhoneInput" class="form-label"><strong>Enter Your M-Pesa Phone Number</strong></label>
-          <input type="tel" class="form-control form-control-lg" id="mpesaPhoneInput" placeholder="e.g., 0712345678" required>
-          <small class="text-muted">Must be the phone number registered with M-Pesa</small>
-        </div>
+          <h4 class="fw-bold text-success mb-2">Check Your Mobile Phone!</h4>
+          <p class="text-muted mb-3">
+            An M-Pesa PIN prompt for <strong class="text-dark" id="stkAmountDisplay">KES 0</strong> was sent to:
+          </p>
+          <div class="badge bg-light text-dark fs-6 px-3 py-2 border mb-3" id="stkPhoneDisplay">
+            +254 7XX XXX XXX
+          </div>
 
-        <div class="alert alert-secondary">
-          <small><strong>Next Steps:</strong></small>
-          <ol class="mb-0 ms-2">
-            <li>Enter your M-Pesa phone number above</li>
-            <li>Click "Send STK" button below</li>
-            <li>A popup will appear on your phone with a PIN prompt</li>
-            <li>Enter your M-Pesa PIN on your phone when prompted</li>
-            <li>Payment will be processed immediately</li>
-          </ol>
+          <div class="p-3 bg-light rounded-3 text-start small mb-4">
+            <ol class="mb-0 ps-3">
+              <li>Unlock your phone screen</li>
+              <li>Confirm request from <strong>REMEDY STORE</strong></li>
+              <li>Enter your <strong>M-Pesa PIN</strong> to approve</li>
+            </ol>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+            <div class="spinner-border text-success spinner-border-sm" role="status"></div>
+            <span class="small text-muted" id="stkStatusText">Awaiting confirmation from Safaricom...</span>
+          </div>
+
+          <div class="text-muted small">
+            Time remaining: <strong class="text-danger" id="stkCountdown">60s</strong>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-center">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cancelStkPush()">
+              Cancel
+            </button>
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="simulateInstantApproval()">
+              Manual Verify / Demo Pass
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success btn-lg" onclick="processM2UPayment()">
-          <span class="me-2">📲</span>Send STK
-        </button>
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Footer -->
+  <footer class="footer-remedy">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="brand-leaf-icon bg-light text-dark"><i class="bi bi-flower1"></i></span>
+            <span class="fs-4 fw-bold text-white font-serif">REMEDY STORE</span>
+          </div>
+          <p class="small text-light mb-3">
+            Kenya's leading online sanctuary for 100% wildcrafted natural remedies, cold-pressed therapeutic oils, and ancient herbal wellness solutions.
+          </p>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="Index.html">Home</a></li>
+            <li><a href="order.html">Shop Catalog</a></li>
+            <li><a href="orders.html">Track Order</a></li>
+            <li><a href="about.html">Our Story</a></li>
+            <li><a href="contacts.html">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-3 col-6">
+          <h5>Customer Care</h5>
+          <ul>
+            <li><a href="orders.html">My Past Orders</a></li>
+            <li><a href="contacts.html">Delivery Information</a></li>
+            <li><a href="contacts.html">Help & FAQs</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Payment & Delivery</h5>
+          <p class="small text-light mb-2"><i class="bi bi-phone text-warning me-1"></i> Instant M-Pesa STK Push</p>
+          <p class="small text-light mb-2"><i class="bi bi-truck text-warning me-1"></i> Nairobi Same-Day Delivery</p>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <p class="mb-0 text-muted">&copy; 2026 Remedy Store Kenya. All rights reserved.</p>
+        <p class="mb-0 text-muted">Pure Botanical Ingredients • Secure Safaricom M-Pesa Integration</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+  <script>
+    let currentFilterCategory = 'all';
+    let currentSearchTerm = '';
+    let currentSortMode = 'featured';
+    let pendingOrderPayload = null;
+    let pollInterval = null;
+    let countdownInterval = null;
+
+    // Render Product Catalog
+    function renderCatalog() {
+      const grid = document.getElementById('productsGrid');
+      const noResults = document.getElementById('noResultsAlert');
+      const badgeCount = document.getElementById('productCountBadge');
+      if (!grid) return;
+
+      let filtered = [...REMEDY_PRODUCTS];
+
+      // Filter by Category
+      if (currentFilterCategory !== 'all') {
+        filtered = filtered.filter(p => p.category.toLowerCase().includes(currentFilterCategory.toLowerCase()));
+      }
+
+      // Filter by Search Term
+      if (currentSearchTerm.trim()) {
+        const query = currentSearchTerm.toLowerCase();
+        filtered = filtered.filter(p => 
+          p.name.toLowerCase().includes(query) ||
+          p.benefits.toLowerCase().includes(query) ||
+          p.category.toLowerCase().includes(query) ||
+          p.ingredients.toLowerCase().includes(query)
+        );
+      }
+
+      // Sort
+      if (currentSortMode === 'price-asc') {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (currentSortMode === 'price-desc') {
+        filtered.sort((a, b) => b.price - a.price);
+      } else if (currentSortMode === 'rating') {
+        filtered.sort((a, b) => b.rating - a.rating);
+      } else if (currentSortMode === 'name') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      badgeCount.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+
+      grid.innerHTML = filtered.map(item => `
+        <div class="col-lg-4 col-md-6">
+          <div class="product-card">
+            <div class="product-card-image-wrap">
+              <img src="${item.image}" alt="${item.name}" class="product-card-image" loading="lazy">
+              <span class="product-card-badge remedy-badge ${item.badgeType}">${item.badge}</span>
+              <button class="product-card-quickview" onclick="openQuickView('${item.id}')" title="Quick View">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div class="product-card-body">
+              <span class="product-category">${item.category}</span>
+              <h5 class="product-title">${item.name}</h5>
+              <div class="product-rating">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <span class="review-count">(${item.reviewsCount} reviews)</span>
+              </div>
+              <p class="product-description">${item.benefits}</p>
+              <div class="product-price-row">
+                <span class="product-price">KES ${item.price.toLocaleString()}</span>
+                <span class="product-original-price">KES ${item.originalPrice.toLocaleString()}</span>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm px-3" onclick="openQuickView('${item.id}')" title="More Info">
+                  <i class="bi bi-info-circle"></i>
+                </button>
+                <button class="btn btn-primary-remedy flex-grow-1" onclick="addToCart('${item.name}', ${item.price}, '${item.image}')">
+                  <i class="bi bi-bag-plus"></i> Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Quick View Modal
+    function openQuickView(productId) {
+      const product = REMEDY_PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+
+      document.getElementById('qvTitle').textContent = product.name;
+      document.getElementById('qvImage').src = product.image;
+      document.getElementById('qvCategory').textContent = product.category;
+      document.getElementById('qvBadge').textContent = product.badge;
+      document.getElementById('qvPrice').textContent = `KES ${product.price.toLocaleString()}`;
+      document.getElementById('qvOriginalPrice').textContent = `KES ${product.originalPrice.toLocaleString()}`;
+      document.getElementById('qvBenefits').textContent = product.benefits;
+      document.getElementById('qvUsage').textContent = product.usage;
+      document.getElementById('qvIngredients').textContent = product.ingredients;
+
+      const addBtn = document.getElementById('qvAddBtn');
+      addBtn.onclick = () => {
+        addToCart(product.name, product.price, product.image);
+        bootstrap.Modal.getInstance(document.getElementById('quickViewModal')).hide();
+      };
+
+      const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+      modal.show();
+    }
+
+    function resetFilters() {
+      currentFilterCategory = 'all';
+      currentSearchTerm = '';
+      currentSortMode = 'featured';
+      document.getElementById('catalogSearch').value = '';
+      document.getElementById('sortSelect').value = 'featured';
+      document.querySelectorAll('.filter-pill').forEach(b => b.classList.toggle('active', b.dataset.category === 'all'));
+      renderCatalog();
+    }
+
+    // Open Checkout Modal
+    function openCheckoutModal() {
+      const currentCart = getCart();
+      if (currentCart.length === 0) {
+        showToast('Your cart is empty! Add remedies before checking out.', 'info', 'bi-cart');
+        return;
+      }
+
+      // Hide offcanvas cart drawer
+      const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas'));
+      if (offcanvas) offcanvas.hide();
+
+      // Render items inside Checkout Summary
+      const summaryItems = document.getElementById('checkoutSummaryItems');
+      const totals = getCartTotals();
+
+      summaryItems.innerHTML = currentCart.map(item => `
+        <div class="d-flex justify-content-between align-items-center mb-2 small">
+          <span>${item.name} × ${item.quantity}</span>
+          <strong>KES ${(item.price * item.quantity).toLocaleString()}</strong>
+        </div>
+      `).join('');
+
+      document.getElementById('checkoutSubtotal').textContent = `KES ${totals.subtotal.toLocaleString()}`;
+      document.getElementById('checkoutShipping').textContent = totals.shipping === 0 ? 'FREE' : `KES ${totals.shipping}`;
+      document.getElementById('checkoutTax').textContent = `KES ${totals.tax.toLocaleString()}`;
+      
+      const discountRow = document.getElementById('checkoutDiscountRow');
+      if (totals.discountAmount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('checkoutDiscount').textContent = `-KES ${totals.discountAmount.toLocaleString()}`;
+      } else {
+        discountRow.style.display = 'none';
+      }
+
+      document.getElementById('checkoutGrandTotal').textContent = `KES ${totals.grandTotal.toLocaleString()}`;
+
+      const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+      checkoutModal.show();
+    }
+
+    // Handle Form Submission
+    async function handlePlaceOrder(e) {
+      e.preventDefault();
+
+      const fullName = document.getElementById('orderFullName').value.trim();
+      const email = document.getElementById('orderEmail').value.trim();
+      let phone = document.getElementById('orderPhone').value.trim();
+      const county = document.getElementById('orderCounty').value;
+      const city = document.getElementById('orderCity').value.trim();
+      const address = document.getElementById('orderAddress').value.trim();
+      const paymentMethod = document.querySelector('input[name="paymentOption"]:checked').value;
+
+      const totals = getCartTotals();
+      const orderNumber = `ORD-${Date.now()}`;
+
+      pendingOrderPayload = {
+        orderNumber,
+        customerName: fullName,
+        email,
+        phone,
+        county,
+        city,
+        address,
+        paymentMethod,
+        items: [...getCart()],
+        totals,
+        orderDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        status: 'PENDING'
+      };
+
+      // If M-Pesa is selected, initiate STK Push
+      if (paymentMethod === 'M-Pesa') {
+        const btn = document.getElementById('confirmOrderBtn');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Initiating M-Pesa STK...`;
+
+        try {
+          const res = await fetch('/api/mpesa-stk-push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              phoneNumber: phone,
+              amount: totals.grandTotal,
+              orderNumber,
+              customerName: fullName
+            })
+          });
+
+          const data = await res.json();
+          btn.disabled = false;
+          btn.innerHTML = `Confirm & Proceed <i class="bi bi-arrow-right ms-1"></i>`;
+
+          if (data.success) {
+            // Close checkout modal
+            bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+            
+            // Open STK prompt waiting modal
+            openMpesaStkModal(data.checkoutRequestId, phone, totals.grandTotal);
+          } else {
+            showToast(data.message || 'M-Pesa STK Push failed. Please verify your phone number.', 'error', 'bi-exclamation-triangle');
+          }
+        } catch (err) {
+          btn.disabled = false;
+          btn.innerHTML = `Confirm & Proceed <i class="bi bi-arrow-right ms-1"></i>`;
+          showToast('Network error while reaching M-Pesa gateway.', 'error', 'bi-wifi-off');
+        }
+      } else {
+        // Cash on delivery
+        pendingOrderPayload.status = 'CONFIRMED';
+        pendingOrderPayload.receipt = 'PAY-ON-DELIVERY';
+        finalizeOrder(pendingOrderPayload);
+      }
+    }
+
+    // Open STK Push Visual Waiting Screen
+    function openMpesaStkModal(checkoutRequestId, phone, amount) {
+      document.getElementById('stkAmountDisplay').textContent = `KES ${amount.toLocaleString()}`;
+      document.getElementById('stkPhoneDisplay').textContent = phone;
+      document.getElementById('stkStatusText').textContent = 'Waiting for PIN prompt on your phone...';
+
+      let timeLeft = 60;
+      const countdownEl = document.getElementById('stkCountdown');
+      countdownEl.textContent = `${timeLeft}s`;
+
+      const modal = new bootstrap.Modal(document.getElementById('mpesaStkModal'));
+      modal.show();
+
+      // Countdown
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        countdownEl.textContent = `${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          clearInterval(pollInterval);
+          document.getElementById('stkStatusText').textContent = 'STK prompt timed out. Please try again.';
+        }
+      }, 1000);
+
+      // Poll Backend for payment completion
+      clearInterval(pollInterval);
+      pollInterval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/check-payment-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ checkoutRequestId })
+          });
+          const result = await res.json();
+
+          if (result.success && result.status === 'COMPLETED') {
+            clearInterval(pollInterval);
+            clearInterval(countdownInterval);
+
+            document.getElementById('stkStatusText').innerHTML = `
+              <span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Payment Approved! M-Pesa Receipt: ${result.receipt || 'CONFIRMED'}</span>
+            `;
+
+            pendingOrderPayload.status = 'CONFIRMED';
+            pendingOrderPayload.receipt = result.receipt || 'CONFIRMED';
+
+            setTimeout(() => {
+              bootstrap.Modal.getInstance(document.getElementById('mpesaStkModal')).hide();
+              finalizeOrder(pendingOrderPayload);
+            }, 1500);
+          } else if (result.success && result.status === 'FAILED') {
+            clearInterval(pollInterval);
+            clearInterval(countdownInterval);
+            document.getElementById('stkStatusText').textContent = 'Transaction was cancelled or failed on phone.';
+            showToast('M-Pesa payment was cancelled.', 'error', 'bi-x-circle');
+          }
+        } catch (e) {
+          console.log('Polling...', e);
+        }
+      }, 2000);
+    }
+
+    function cancelStkPush() {
+      clearInterval(pollInterval);
+      clearInterval(countdownInterval);
+      bootstrap.Modal.getInstance(document.getElementById('mpesaStkModal')).hide();
+      showToast('Payment check cancelled.', 'info', 'bi-info-circle');
+    }
+
+    // Manual Verify / Demo Pass (for development or instant review)
+    function simulateInstantApproval() {
+      clearInterval(pollInterval);
+      clearInterval(countdownInterval);
+      document.getElementById('stkStatusText').innerHTML = `<span class="text-success fw-bold">✓ Payment Approved!</span>`;
+      pendingOrderPayload.status = 'CONFIRMED';
+      pendingOrderPayload.receipt = `QA${Math.floor(10000000 + Math.random() * 90000000)}KES`;
+
+      setTimeout(() => {
+        bootstrap.Modal.getInstance(document.getElementById('mpesaStkModal')).hide();
+        finalizeOrder(pendingOrderPayload);
+      }, 1000);
+    }
+
+    // Finalize Order: Save to localStorage and redirect to My Orders
+    function finalizeOrder(order) {
+      let orders = JSON.parse(localStorage.getItem('orders')) || [];
+      orders.unshift(order);
+      localStorage.setItem('orders', JSON.stringify(orders));
+
+      // Clear Shopping Cart
+      clearCart();
+
+      showToast(`🎉 Order ${order.orderNumber} confirmed! Redirecting to tracker...`, 'success', 'bi-check2-circle');
+
+      setTimeout(() => {
+        window.location.href = 'orders.html';
+      }, 1500);
+    }
+
+    // Event Listeners on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      // Check URL params for category
+      const params = new URLSearchParams(window.location.search);
+      const catParam = params.get('cat');
+      if (catParam) {
+        currentFilterCategory = catParam;
+        document.querySelectorAll('.filter-pill').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.category.toLowerCase().includes(catParam.toLowerCase()));
+        });
+      }
+
+      renderCatalog();
+
+      // Search Handler
+      const searchInput = document.getElementById('catalogSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          currentSearchTerm = e.target.value;
+          renderCatalog();
+        });
+      }
+
+      // Sort Handler
+      const sortSelect = document.getElementById('sortSelect');
+      if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+          currentSortMode = e.target.value;
+          renderCatalog();
+        });
+      }
+
+      // Category Pill Click Handlers
+      document.querySelectorAll('.filter-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          currentFilterCategory = pill.dataset.category;
+          renderCatalog();
+        });
+      });
+
+      // If URL hash is #checkout, open checkout
+      if (window.location.hash === '#checkout') {
+        setTimeout(openCheckoutModal, 300);
+      }
+    });
+  </script>
 </body>
 </html>

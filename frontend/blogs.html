@@ -1,104 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link href="style.css" rel="stylesheet">
-    <title>Blogs - Remedy Store</title>
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wellness Journal & Holistic Guides - Remedy Store</title>
+  <meta name="description" content="Discover evidence-backed herbal wisdom, holistic nutrition protocols, and traditional African remedy rituals.">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar bg-body-tertiary fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="Index.html">REMEDY STORE</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Welcome</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar text-center">
+    <span>🌿 <strong>100% Wildcrafted & Organic</strong> • Free Nairobi Delivery over KES 2,500 • <span class="badge-accent">Instant M-Pesa STK Push</span></span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="Index.html">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </a>
+
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+          <i class="bi bi-bag"></i>
+          <span class="cart-counter">0</span>
+        </button>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navOffcanvas">
+          <span class="navbar-toggler-icon"></span>
+        </button>
       </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link" href="Index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="about.html">About us</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="blogs.html">Blogs</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="order.html">Place your order</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="orders.html">My Orders</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contacts.html">Contacts us</a>
-          </li>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="order.html">Shop Remedies</a></li>
+          <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+          <li class="nav-item"><a class="nav-link active" href="blogs.html">Wellness Journal</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+          <li class="nav-item"><a class="nav-link" href="contacts.html">Contact Us</a></li>
         </ul>
-        <form class="d-flex mt-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+
+        <div class="d-none d-lg-flex align-items-center gap-3">
+          <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+            <i class="bi bi-bag-check"></i>
+            <span>Cart</span>
+            <span class="cart-counter">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Offcanvas Menu -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="navOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav mb-4">
+        <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="order.html">Shop Remedies</a></li>
+        <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+        <li class="nav-item"><a class="nav-link active" href="blogs.html">Wellness Journal</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+        <li class="nav-item"><a class="nav-link" href="contacts.html">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Header Banner -->
+  <section class="py-5 bg-white border-bottom mb-5">
+    <div class="container text-center py-4">
+      <span class="remedy-badge badge-organic mb-2 d-inline-block">The Holistic Apothecary Journal</span>
+      <h1 class="display-4 fw-bold mb-3">Ancient Plant Wisdom for Modern Bodies</h1>
+      <p class="text-muted mx-auto lead" style="max-width: 680px;">
+        Practical, science-aligned guides on how to weave wildcrafted spices, cold-pressed oils, and raw superfoods into your daily health rituals.
+      </p>
+    </div>
+  </section>
+
+  <!-- Blog Articles Grid -->
+  <div class="container mb-5">
+    <div class="row g-4" id="blogGrid">
+
+      <!-- Article 1 -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-lift">
+          <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 220px; object-fit: cover;" alt="Cayenne Pepper">
+          <div class="card-body p-4 d-flex flex-direction-column flex-column">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="remedy-badge badge-organic">Cardiovascular</span>
+              <small class="text-muted"><i class="bi bi-clock me-1"></i> 5 min read</small>
+            </div>
+            <h5 class="fw-bold mb-2">The Science of Cayenne Pepper: Capsaicin & Blood Flow</h5>
+            <p class="text-muted small mb-4 flex-grow-1">
+              Why legendary natural healers refer to high-heat cayenne as the master circulatory stimulant. Learn the morning lemon-water protocol that naturally supports blood pressure.
+            </p>
+            <button class="btn btn-outline-success btn-sm w-100 mt-auto" onclick="openBlogModal(0)">
+              Read Full Article <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article 2 -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-lift">
+          <img src="https://images.unsplash.com/photo-1512290900672-1f4175394d13?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 220px; object-fit: cover;" alt="Castor Oil Pack">
+          <div class="card-body p-4 d-flex flex-direction-column flex-column">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="remedy-badge badge-popular">Detox & Hair</span>
+              <small class="text-muted"><i class="bi bi-clock me-1"></i> 6 min read</small>
+            </div>
+            <h5 class="fw-bold mb-2">How to Use Castor Oil Packs for Deep Lymphatic Detox</h5>
+            <p class="text-muted small mb-4 flex-grow-1">
+              Ricinoleic acid penetrates deep into subcutaneous tissue to ease joint stiffness, stimulate liver drainage, and nourish hair follicles from root to tip.
+            </p>
+            <button class="btn btn-outline-success btn-sm w-100 mt-auto" onclick="openBlogModal(1)">
+              Read Full Article <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article 3 -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-lift">
+          <img src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 220px; object-fit: cover;" alt="Raw Honey">
+          <div class="card-body p-4 d-flex flex-direction-column flex-column">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="remedy-badge badge-bestseller">Immune Defense</span>
+              <small class="text-muted"><i class="bi bi-clock me-1"></i> 4 min read</small>
+            </div>
+            <h5 class="fw-bold mb-2">Raw Wild Honey vs Factory Syrups: What You Never Knew</h5>
+            <p class="text-muted small mb-4 flex-grow-1">
+              Discover why commercial heated honeys lose all enzyme activity, and why true raw African forest honey contains therapeutic bee propolis and natural antibiotic peptides.
+            </p>
+            <button class="btn btn-outline-success btn-sm w-100 mt-auto" onclick="openBlogModal(2)">
+              Read Full Article <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article 4 -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-lift">
+          <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 220px; object-fit: cover;" alt="Moringa">
+          <div class="card-body p-4 d-flex flex-direction-column flex-column">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="remedy-badge badge-organic">Superfoods</span>
+              <small class="text-muted"><i class="bi bi-clock me-1"></i> 5 min read</small>
+            </div>
+            <h5 class="fw-bold mb-2">Moringa Oleifera: Africa's 'Miracle Tree' Decoded</h5>
+            <p class="text-muted small mb-4 flex-grow-1">
+              With 46 antioxidants and all 9 essential amino acids, shade-dried moringa leaf is the ultimate whole-food multivitamin for sustained morning energy and clear focus.
+            </p>
+            <button class="btn btn-outline-success btn-sm w-100 mt-auto" onclick="openBlogModal(3)">
+              Read Full Article <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article 5 -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-lift">
+          <img src="https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 220px; object-fit: cover;" alt="Turmeric and Slippery Elm">
+          <div class="card-body p-4 d-flex flex-direction-column flex-column">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="remedy-badge badge-popular">Gut & Acid Reflux</span>
+              <small class="text-muted"><i class="bi bi-clock me-1"></i> 7 min read</small>
+            </div>
+            <h5 class="fw-bold mb-2">Healing Acid Reflux & Gastritis with Slippery Elm Bark</h5>
+            <p class="text-muted small mb-4 flex-grow-1">
+              How natural mucilage creates a physical protective shield over irritated stomach lining, allowing inflamed tissues to heal without suppressing crucial stomach acid.
+            </p>
+            <button class="btn btn-outline-success btn-sm w-100 mt-auto" onclick="openBlogModal(4)">
+              Read Full Article <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article 6 -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white hover-lift">
+          <img src="https://images.unsplash.com/photo-1598449356475-b9f71db7d847?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 220px; object-fit: cover;" alt="Ashwagandha">
+          <div class="card-body p-4 d-flex flex-direction-column flex-column">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="remedy-badge badge-bestseller">Stress & Sleep</span>
+              <small class="text-muted"><i class="bi bi-clock me-1"></i> 4 min read</small>
+            </div>
+            <h5 class="fw-bold mb-2">Ashwagandha for Burnout: Rebalancing Adrenals Naturally</h5>
+            <p class="text-muted small mb-4 flex-grow-1">
+              Chronic stress taxes the adrenal glands and disrupts sleep. Learn how Withania somnifera modulates cortisol levels to restore calm days and deep sleep.
+            </p>
+            <button class="btn btn-outline-success btn-sm w-100 mt-auto" onclick="openBlogModal(5)">
+              Read Full Article <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</nav>
 
-<div class="container mt-5 pt-5">
-  <div class="row">
-    <div class="col-md-12">
-      <h1 class="mb-5">Remedy Store Blog</h1>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">The Benefits of Herbal Tea</h5>
-          <p class="card-text">Discover the amazing health benefits of herbal teas and how they can improve your daily wellness routine.</p>
-          <a href="#" class="btn btn-success">Read More</a>
+  <!-- Blog Article Reader Modal -->
+  <div class="modal fade" id="blogReaderModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content modal-content-remedy">
+        <div class="modal-header modal-header-remedy">
+          <h5 class="modal-title" id="bmTitle">Article Title</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-      </div>
-    </div>
+        <div class="modal-body p-4 p-md-5">
+          <div class="d-flex align-items-center gap-3 mb-4 text-muted small border-bottom pb-3">
+            <span id="bmCategory" class="remedy-badge badge-organic">Topic</span>
+            <span id="bmReadTime"><i class="bi bi-clock me-1"></i> 5 min read</span>
+            <span><i class="bi bi-shield-check me-1"></i> Fact Checked by Herbalist</span>
+          </div>
 
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Natural Remedies for Common Ailments</h5>
-          <p class="card-text">Explore natural and effective remedies for headaches, colds, and other common health issues.</p>
-          <a href="#" class="btn btn-success">Read More</a>
-        </div>
-      </div>
-    </div>
+          <div id="bmContent" class="leading-relaxed" style="font-size: 1.05rem; color: #2c3e35;">
+            <!-- Article Body -->
+          </div>
 
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Organic Living: A Beginner's Guide</h5>
-          <p class="card-text">Learn how to start your journey towards a healthier, more organic lifestyle today.</p>
-          <a href="#" class="btn btn-success">Read More</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Superfoods for Immune Boost</h5>
-          <p class="card-text">Strengthen your immune system naturally with our recommended superfoods and supplements.</p>
-          <a href="#" class="btn btn-success">Read More</a>
+          <div class="p-4 bg-light rounded-4 border mt-5 text-center">
+            <h5 class="fw-bold mb-2">Ready to Try This Natural Remedy?</h5>
+            <p class="small text-muted mb-3" id="bmPromoText">Experience the authentic, lab-verified potency of our 100% wildcrafted botanical harvest.</p>
+            <a href="order.html" class="btn btn-primary-remedy px-4">
+              <i class="bi bi-bag-plus me-1"></i> Order Now with M-Pesa
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Offcanvas Cart -->
+  <div class="offcanvas offcanvas-end offcanvas-cart" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <i class="bi bi-bag-check-fill text-success"></i> Your Shopping Cart
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cartDrawerItems"></div>
+    <div class="p-3 border-top bg-light" id="cartDrawerFooter">
+      <div class="d-flex justify-content-between mb-1 small">
+        <span class="text-muted">Subtotal:</span>
+        <strong id="drawerSubtotal">KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-2 small">
+        <span class="text-muted">Delivery:</span>
+        <span id="drawerShipping">KES 50</span>
+      </div>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between mb-3">
+        <span class="fw-bold">Total:</span>
+        <span class="fw-bold text-success fs-5" id="drawerGrandTotal">KES 0</span>
+      </div>
+      <a href="order.html#checkout" class="btn btn-primary-remedy w-100 py-2">
+        Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-remedy">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="brand-leaf-icon bg-light text-dark"><i class="bi bi-flower1"></i></span>
+            <span class="fs-4 fw-bold text-white font-serif">REMEDY STORE</span>
+          </div>
+          <p class="small text-light mb-3">
+            Kenya's leading online sanctuary for 100% wildcrafted natural remedies, cold-pressed therapeutic oils, and ancient herbal wellness solutions.
+          </p>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="Index.html">Home</a></li>
+            <li><a href="order.html">Shop Catalog</a></li>
+            <li><a href="orders.html">Track Order</a></li>
+            <li><a href="about.html">Our Story</a></li>
+            <li><a href="contacts.html">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-3 col-6">
+          <h5>Contact</h5>
+          <p class="small text-light mb-1"><i class="bi bi-geo-alt text-warning me-1"></i> Nairobi, Kenya</p>
+          <p class="small text-light mb-1"><i class="bi bi-telephone text-warning me-1"></i> +254 715 224 878</p>
+          <p class="small text-light mb-1"><i class="bi bi-envelope text-warning me-1"></i> info@remedystore.com</p>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Payment & Delivery</h5>
+          <p class="small text-light mb-2"><i class="bi bi-phone text-warning me-1"></i> Instant M-Pesa STK Push</p>
+          <p class="small text-light mb-2"><i class="bi bi-truck text-warning me-1"></i> Nairobi Same-Day Delivery</p>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <p class="mb-0 text-muted">&copy; 2026 Remedy Store Kenya. All rights reserved.</p>
+        <p class="mb-0 text-muted">Pure Botanical Ingredients • Secure Safaricom M-Pesa Integration</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const BLOG_ARTICLES = [
+      {
+        title: "The Science of Cayenne Pepper: Capsaicin & Blood Flow",
+        category: "Cardiovascular Health",
+        readTime: "5 min read",
+        promo: "Try our fresh stone-ground African Cayenne Pepper (KES 200) for vibrant energy.",
+        content: `
+          <p>For centuries, traditional naturopaths have referred to <strong>Cayenne Pepper (Capsicum annuum)</strong> as the king of herbal stimulants. Unlike caffeine which taxes the central nervous system, Cayenne works directly through the vascular system.</p>
+          <h4>The Power of Capsaicin</h4>
+          <p>Capsaicin stimulates the production of nitric oxide, signaling blood vessels to dilate and relax. This lowers resistance in arteries, supports healthy blood pressure, and sends oxygenated blood to cold hands and feet.</p>
+          <h4>The Morning Lemon-Cayenne Ritual</h4>
+          <ol>
+            <li>Take 250ml of warm filtered water</li>
+            <li>Squeeze in juice from half a fresh lemon</li>
+            <li>Add 1/4 teaspoon of Remedy Store Pure Cayenne Pepper</li>
+            <li>Drink 15 minutes before breakfast for a revitalizing morning glow</li>
+          </ol>
+        `
+      },
+      {
+        title: "How to Use Castor Oil Packs for Deep Lymphatic Detox",
+        category: "Detox & Topical Healing",
+        readTime: "6 min read",
+        promo: "Our 100% Hexane-Free Cold-Pressed Castor Oil is available in 500ml glass bottles (KES 800).",
+        content: `
+          <p>Castor oil (Ricinus communis) contains over 85% <strong>ricinoleic acid</strong>, an uncommon fatty acid known to stimulate the lymphatic system—the body's primary waste-elimination network.</p>
+          <h4>Benefits of Topical Castor Oil Packs</h4>
+          <ul>
+            <li><strong>Liver Drainage:</strong> Placed over the right upper abdomen, it assists bile movement.</li>
+            <li><strong>Joint Relief:</strong> Eases inflammation in knees, hands, and lower back.</li>
+            <li><strong>Hair & Eyebrow Growth:</strong> Nourishes dormant hair follicles with essential ricinoleic triglycerides.</li>
+          </ul>
+          <h4>Step-by-Step Pack Instructions</h4>
+          <p>Saturate unbleached organic cotton flannel with cold-pressed castor oil. Lay it over your abdomen, cover with a towel, and apply a warm water bottle for 45 minutes while relaxing.</p>
+        `
+      },
+      {
+        title: "Raw Wild Honey vs Factory Syrups: What You Never Knew",
+        category: "Immune Defense",
+        readTime: "4 min read",
+        promo: "Savor our raw, unfiltered African Forest Honey with live bee propolis (KES 1,200).",
+        content: `
+          <p>Most commercial supermarket honey is ultra-filtered and flash-heated to 70°C to prevent crystallization on supermarket shelves. Tragically, this process destroys live enzymes (invertase, amylase) and active bee propolis.</p>
+          <h4>The Anatomy of Wild Honey</h4>
+          <p>True raw honey contains microscopic particles of flower pollen, royal jelly, and propolis. It contains natural hydrogen peroxide peptides that soothe sore throats and inhibit bacterial proliferation naturally.</p>
+          <p>Store at room temperature and consume 1 tablespoon each morning straight from the wooden spoon.</p>
+        `
+      },
+      {
+        title: "Moringa Oleifera: Africa's 'Miracle Tree' Decoded",
+        category: "Superfood Nutrition",
+        readTime: "5 min read",
+        promo: "Stone-ground Organic Moringa Powder is available now for KES 1,500.",
+        content: `
+          <p>Moringa leaves have been celebrated across East Africa for millennia. Clinical nutrition analyses confirm that dried moringa leaf powder contains:</p>
+          <ul>
+            <li><strong>7x the Vitamin C</strong> of fresh oranges</li>
+            <li><strong>4x the Calcium</strong> of cow's milk</li>
+            <li><strong>4x the Vitamin A</strong> of raw carrots</li>
+            <li><strong>3x the Potassium</strong> of bananas</li>
+          </ul>
+          <p>Stir 1 teaspoon into warm lemon tea or your morning smoothie to revitalize cellular resilience throughout the day.</p>
+        `
+      },
+      {
+        title: "Healing Acid Reflux & Gastritis with Slippery Elm Bark",
+        category: "Gut Health",
+        readTime: "7 min read",
+        promo: "Order pure Slippery Elm Bark Powder (KES 1,400) for gentle gut lining comfort.",
+        content: `
+          <p>Pharmaceutical antacids often treat reflux by shutting down stomach acid. However, low stomach acid causes undigested food to ferment, worsening bloating and nutrient malabsorption.</p>
+          <h4>The Natural Demulcent Solution</h4>
+          <p>Slippery Elm inner bark contains complex polysaccharides that transform into a gentle, slick gel when combined with water. This gel physically coats the esophagus, stomach lining, and intestines, shielding them from digestive juices and enabling micro-tears to heal naturally.</p>
+        `
+      },
+      {
+        title: "Ashwagandha for Burnout: Rebalancing Adrenals Naturally",
+        category: "Stress & Sleep",
+        readTime: "4 min read",
+        promo: "KSM-66 Full Spectrum Ashwagandha (KES 200) helps you decompress naturally.",
+        content: `
+          <p>In Ayurvedic medicine, Ashwagandha is celebrated as a premier <em>Rasayana</em>—an herb that promotes longevity and resilience against physical and emotional exhaustion.</p>
+          <p>Modern clinical studies confirm that withanolides in Ashwagandha act directly on the HPA (hypothalamic-pituitary-adrenal) axis, reducing serum cortisol levels by up to 28% and supporting restorative REM sleep cycles.</p>
+        `
+      }
+    ];
+
+    function openBlogModal(idx) {
+      const article = BLOG_ARTICLES[idx];
+      if (!article) return;
+
+      document.getElementById('bmTitle').textContent = article.title;
+      document.getElementById('bmCategory').textContent = article.category;
+      document.getElementById('bmReadTime').innerHTML = `<i class="bi bi-clock me-1"></i> ${article.readTime}`;
+      document.getElementById('bmContent').innerHTML = article.content;
+      document.getElementById('bmPromoText').textContent = article.promo;
+
+      const modal = new bootstrap.Modal(document.getElementById('blogReaderModal'));
+      modal.show();
+    }
+  </script>
 </body>
 </html>

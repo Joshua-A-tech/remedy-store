@@ -1,263 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link href="style.css" rel="stylesheet">
-    <title>My Orders - Remedy Store</title>
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      let orders = JSON.parse(localStorage.getItem('orders')) || [];
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders & Tracking - Remedy Store</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
 
-      function displayOrders() {
-        const ordersContainer = document.getElementById('orders-container');
-        
-        if (orders.length === 0) {
-          ordersContainer.innerHTML = `
-            <div class="alert alert-info text-center py-5">
-              <h5>No Orders Yet</h5>
-              <p>You haven't placed any orders yet.</p>
-              <a href="order.html" class="btn btn-success">Start Shopping</a>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printableInvoice, #printableInvoice * { visibility: visible; }
+      #printableInvoice { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar text-center no-print">
+    <span>🌿 <strong>100% Wildcrafted & Organic</strong> • Fast Nationwide Dispatch • <span class="badge-accent">Instant M-Pesa STK Push</span></span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom no-print">
+    <div class="container">
+      <a class="navbar-brand" href="Index.html">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </a>
+
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+          <i class="bi bi-bag"></i>
+          <span class="cart-counter">0</span>
+        </button>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navOffcanvas">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="order.html">Shop Remedies</a></li>
+          <li class="nav-item"><a class="nav-link active" href="orders.html">My Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="blogs.html">Wellness Journal</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+          <li class="nav-item"><a class="nav-link" href="contacts.html">Contact Us</a></li>
+        </ul>
+
+        <div class="d-none d-lg-flex align-items-center gap-3">
+          <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+            <i class="bi bi-bag-check"></i>
+            <span>Cart</span>
+            <span class="cart-counter">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="offcanvas offcanvas-end no-print" tabindex="-1" id="navOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav mb-4">
+        <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="order.html">Shop Remedies</a></li>
+        <li class="nav-item"><a class="nav-link active" href="orders.html">My Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="blogs.html">Wellness Journal</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+        <li class="nav-item"><a class="nav-link" href="contacts.html">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <section class="py-5 bg-white border-bottom mb-4 no-print">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <span class="remedy-badge badge-organic mb-1 d-inline-block">Order Management</span>
+          <h1 class="display-6 fw-bold mb-0">My Orders & Live Tracking</h1>
+        </div>
+        <div class="card border bg-light py-2 px-4 rounded-3 text-center">
+          <span class="fs-4 fw-bold text-success" id="orderCountBadge">0</span>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Orders</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Orders Content -->
+  <div class="container mb-5 no-print">
+    <div id="ordersContainer">
+      <!-- Dynamically generated list of orders -->
+    </div>
+  </div>
+
+  <!-- Offcanvas Cart -->
+  <div class="offcanvas offcanvas-end offcanvas-cart no-print" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <i class="bi bi-bag-check-fill text-success"></i> Your Shopping Cart
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cartDrawerItems"></div>
+    <div class="p-3 border-top bg-light" id="cartDrawerFooter">
+      <div class="d-flex justify-content-between mb-1 small">
+        <span class="text-muted">Subtotal:</span>
+        <strong id="drawerSubtotal">KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-1 small" id="drawerDiscountRow" style="display: none;">
+        <span class="text-success">Discount:</span>
+        <strong class="text-success" id="drawerDiscount">-KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-2 small">
+        <span class="text-muted">Standard Delivery:</span>
+        <span id="drawerShipping">KES 50</span>
+      </div>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between mb-3">
+        <span class="fw-bold">Total:</span>
+        <span class="fw-bold text-success fs-5" id="drawerGrandTotal">KES 0</span>
+      </div>
+      <a href="order.html#checkout" class="btn btn-primary-remedy w-100 py-2">
+        Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Printable Invoice Modal -->
+  <div class="modal fade" id="invoiceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content modal-content-remedy">
+        <div class="modal-header modal-header-remedy no-print">
+          <h5 class="modal-title"><i class="bi bi-receipt me-2"></i> Official Order Invoice</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4 p-md-5" id="printableInvoice">
+          <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4 flex-wrap gap-3">
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+                <span class="fs-4 fw-bold font-serif text-success">REMEDY STORE</span>
+              </div>
+              <p class="small text-muted mb-0">Nairobi, Kenya • +254 715 224 878</p>
+              <p class="small text-muted mb-0">orders@remedystore.com • www.remedystore.com</p>
             </div>
-          `;
-          return;
-        }
+            <div class="text-md-end">
+              <h5 class="fw-bold text-uppercase text-muted mb-1">INVOICE</h5>
+              <div class="fw-bold fs-6 text-dark" id="invNumber">ORD-000000</div>
+              <div class="small text-muted" id="invDate">Date</div>
+              <div class="badge bg-success mt-1" id="invStatus">PAID & CONFIRMED</div>
+            </div>
+          </div>
 
-        ordersContainer.innerHTML = orders.map((order, index) => `
-          <div class="card mb-4 border-left-success">
-            <div class="card-header bg-light">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h6 class="mb-0"><strong>Order ${order.orderNumber}</strong></h6>
-                  <small class="text-muted">${order.orderDate}</small>
+          <!-- Customer details -->
+          <div class="row g-4 mb-4">
+            <div class="col-6">
+              <h6 class="text-uppercase text-muted small fw-bold mb-1">Billed & Shipped To:</h6>
+              <div class="fw-bold" id="invCustomerName">Grace Wanjiku</div>
+              <div class="small text-muted" id="invAddress">Kilimani, Nairobi</div>
+              <div class="small text-muted" id="invPhone">+254 7XX XXX XXX</div>
+              <div class="small text-muted" id="invEmail">grace@example.com</div>
+            </div>
+            <div class="col-6 text-end">
+              <h6 class="text-uppercase text-muted small fw-bold mb-1">Payment Method:</h6>
+              <div class="fw-bold text-success" id="invPaymentMethod">M-Pesa STK Push</div>
+              <div class="small text-muted">Receipt / Ref: <strong id="invReceipt">QA12345678KES</strong></div>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="table-responsive mb-4">
+            <table class="table table-bordered mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Remedy Product</th>
+                  <th class="text-center" style="width: 80px;">Qty</th>
+                  <th class="text-end" style="width: 130px;">Unit Price</th>
+                  <th class="text-end" style="width: 140px;">Total</th>
+                </tr>
+              </thead>
+              <tbody id="invItemsTable">
+                <!-- Rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Totals -->
+          <div class="row justify-content-end mb-4">
+            <div class="col-md-6 col-lg-5">
+              <div class="d-flex justify-content-between mb-1 small">
+                <span class="text-muted">Subtotal:</span>
+                <span class="fw-bold" id="invSubtotal">KES 0</span>
+              </div>
+              <div class="d-flex justify-content-between mb-1 small" id="invDiscountRow" style="display: none;">
+                <span class="text-success">Discount:</span>
+                <span class="fw-bold text-success" id="invDiscount">-KES 0</span>
+              </div>
+              <div class="d-flex justify-content-between mb-1 small">
+                <span class="text-muted">Standard Delivery:</span>
+                <span class="fw-bold" id="invShipping">KES 50</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 small">
+                <span class="text-muted">VAT / Tax (0.5%):</span>
+                <span class="fw-bold" id="invTax">KES 0</span>
+              </div>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between fs-5">
+                <strong class="text-dark">Total Paid:</strong>
+                <strong class="text-success" id="invTotal">KES 0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-top pt-3 text-center small text-muted">
+            <p class="mb-1">Thank you for investing in your natural health with Remedy Store!</p>
+            <p class="mb-0">For questions regarding this delivery, please contact <strong>+254 715 224 878</strong></p>
+          </div>
+        </div>
+
+        <div class="modal-footer no-print bg-light">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary-remedy" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> Print / Save PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-remedy no-print">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="brand-leaf-icon bg-light text-dark"><i class="bi bi-flower1"></i></span>
+            <span class="fs-4 fw-bold text-white font-serif">REMEDY STORE</span>
+          </div>
+          <p class="small text-light mb-3">
+            Kenya's leading online sanctuary for 100% wildcrafted natural remedies, cold-pressed therapeutic oils, and ancient herbal wellness solutions.
+          </p>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="Index.html">Home</a></li>
+            <li><a href="order.html">Shop Catalog</a></li>
+            <li><a href="orders.html">Track Order</a></li>
+            <li><a href="about.html">Our Story</a></li>
+            <li><a href="contacts.html">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-3 col-6">
+          <h5>Customer Care</h5>
+          <ul>
+            <li><a href="contacts.html">Delivery Information</a></li>
+            <li><a href="contacts.html">FAQs</a></li>
+            <li><a href="tel:+254715224878">+254 715 224 878</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Payment & Delivery</h5>
+          <p class="small text-light mb-2"><i class="bi bi-phone text-warning me-1"></i> Instant M-Pesa STK Push</p>
+          <p class="small text-light mb-2"><i class="bi bi-truck text-warning me-1"></i> Nairobi Same-Day Delivery</p>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <p class="mb-0 text-muted">&copy; 2026 Remedy Store Kenya. All rights reserved.</p>
+        <p class="mb-0 text-muted">Pure Botanical Ingredients • Secure Safaricom M-Pesa Integration</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+  <script>
+    let ordersList = JSON.parse(localStorage.getItem('orders')) || [];
+
+    function renderOrders() {
+      const container = document.getElementById('ordersContainer');
+      const badge = document.getElementById('orderCountBadge');
+      if (!container) return;
+
+      badge.textContent = ordersList.length;
+
+      if (ordersList.length === 0) {
+        container.innerHTML = `
+          <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
+            <div class="mb-3 text-success fs-1">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <h3 class="fw-bold mb-2">No Orders Yet</h3>
+            <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+              You have not placed any orders yet. Discover our apothecary of cold-pressed oils, wild honey, and herbal powders.
+            </p>
+            <div>
+              <a href="order.html" class="btn btn-primary-remedy btn-lg">
+                <i class="bi bi-bag-plus me-1"></i> Start Shopping
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = ordersList.map((order, idx) => {
+        const isCancelled = order.status === 'CANCELLED';
+        const isConfirmed = order.status === 'CONFIRMED' || !order.status;
+
+        // Calculate order totals
+        const subtotal = order.totals ? order.totals.subtotal : (order.subtotal || order.items.reduce((s, i) => s + (i.price * i.quantity), 0));
+        const shipping = order.totals ? order.totals.shipping : (order.shipping !== undefined ? order.shipping : 50);
+        const grandTotal = order.totals ? order.totals.grandTotal : (order.total || subtotal + shipping);
+
+        return `
+          <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden bg-white">
+            <div class="card-header bg-light border-bottom p-4">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                  <span class="text-muted small">Order Number:</span>
+                  <h5 class="mb-0 fw-bold text-success">${order.orderNumber}</h5>
+                  <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> ${order.orderDate}</small>
                 </div>
-                <div class="col-auto">
-                  <span class="badge bg-success">CONFIRMED</span>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge ${isCancelled ? 'bg-danger' : 'bg-success'} fs-6 px-3 py-2">
+                    <i class="bi ${isCancelled ? 'bi-x-circle' : 'bi-check2-circle'} me-1"></i>
+                    ${isCancelled ? 'CANCELLED' : 'CONFIRMED & PROCESSING'}
+                  </span>
                 </div>
               </div>
             </div>
-            <div class="card-body">
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <h6><strong>Delivery Details</strong></h6>
-                  <p class="mb-1"><strong>${order.customerName}</strong></p>
-                  <p class="mb-1">📧 ${order.email}</p>
-                  <p class="mb-1">📱 ${order.phone}</p>
-                  <p class="mb-1">📍 ${order.address}, ${order.city}</p>
+
+            <div class="card-body p-4">
+              <!-- Live Order Tracking Timeline -->
+              ${!isCancelled ? `
+                <div class="order-timeline">
+                  <div class="order-step completed">
+                    <div class="step-icon"><i class="bi bi-check2"></i></div>
+                    <div class="order-step-title">Order Placed</div>
+                  </div>
+                  <div class="order-step completed">
+                    <div class="step-icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="order-step-title">Payment Verified</div>
+                  </div>
+                  <div class="order-step active">
+                    <div class="step-icon"><i class="bi bi-box-seam"></i></div>
+                    <div class="order-step-title">Packing Herbs</div>
+                  </div>
+                  <div class="order-step">
+                    <div class="step-icon"><i class="bi bi-truck"></i></div>
+                    <div class="order-step-title">In Transit</div>
+                  </div>
+                  <div class="order-step">
+                    <div class="step-icon"><i class="bi bi-house-door"></i></div>
+                    <div class="order-step-title">Delivered</div>
+                  </div>
                 </div>
+              ` : ''}
+
+              <div class="row g-4 mt-2">
+                <!-- Delivery Info -->
+                <div class="col-md-6 border-end">
+                  <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-success me-1"></i> Delivery Details</h6>
+                  <p class="mb-1"><strong>${order.customerName}</strong></p>
+                  <p class="mb-1 small text-muted"><i class="bi bi-telephone me-1"></i> ${order.phone}</p>
+                  <p class="mb-1 small text-muted"><i class="bi bi-envelope me-1"></i> ${order.email}</p>
+                  <p class="mb-0 small text-muted"><i class="bi bi-house me-1"></i> ${order.address}, ${order.city || order.county}</p>
+                </div>
+
+                <!-- Payment Details -->
                 <div class="col-md-6">
-                  <h6><strong>Payment Information</strong></h6>
-                  <p class="mb-1"><strong>Method:</strong> ${order.paymentMethod}</p>
-                  <p class="mb-1"><strong>Amount:</strong> <span class="text-success fs-6">KES ${order.total.toLocaleString()}</span></p>
-                  <p class="mb-1"><strong>Status:</strong> 
-                    <span class="badge bg-info">Processing</span>
+                  <h6 class="fw-bold mb-3"><i class="bi bi-credit-card-fill text-success me-1"></i> Payment Summary</h6>
+                  <p class="mb-1 small">
+                    <span class="text-muted">Method:</span> 
+                    <strong>${order.paymentMethod}</strong>
+                  </p>
+                  <p class="mb-1 small">
+                    <span class="text-muted">M-Pesa Receipt:</span> 
+                    <strong class="text-success">${order.receipt || 'CONFIRMED'}</strong>
+                  </p>
+                  <p class="mb-1 small">
+                    <span class="text-muted">Total Paid:</span> 
+                    <span class="fs-5 fw-bold text-success">KES ${grandTotal.toLocaleString()}</span>
                   </p>
                 </div>
               </div>
 
-              <hr>
+              <hr class="my-4">
 
-              <h6><strong>Items Ordered</strong></h6>
+              <!-- Items Table -->
+              <h6 class="fw-bold mb-3">Items in this Delivery (${order.items.length})</h6>
               <div class="table-responsive">
-                <table class="table table-sm mb-0">
-                  <thead>
+                <table class="table table-sm align-middle">
+                  <thead class="table-light">
                     <tr>
                       <th>Product</th>
-                      <th class="text-end">Qty</th>
-                      <th class="text-end">Price</th>
+                      <th class="text-center">Qty</th>
+                      <th class="text-end">Unit Price</th>
                       <th class="text-end">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${order.items.map(item => `
                       <tr>
-                        <td>${item.name}</td>
-                        <td class="text-end">${item.quantity}</td>
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            ${item.image ? `<img src="${item.image}" alt="" class="rounded" style="width: 36px; height: 36px; object-fit: cover;">` : ''}
+                            <span class="fw-semibold">${item.name}</span>
+                          </div>
+                        </td>
+                        <td class="text-center">${item.quantity}</td>
                         <td class="text-end">KES ${item.price.toLocaleString()}</td>
-                        <td class="text-end"><strong>KES ${(item.price * item.quantity).toLocaleString()}</strong></td>
+                        <td class="text-end fw-bold">KES ${(item.price * item.quantity).toLocaleString()}</td>
                       </tr>
                     `).join('')}
                   </tbody>
                 </table>
               </div>
 
-              <hr>
-
-              <div class="row text-muted small">
-                <div class="col-md-8">
-                  <p class="mb-0">✓ Order confirmed and processing</p>
-                  <p class="mb-0">📦 Expected delivery: 2-3 business days</p>
+              <!-- Action Buttons -->
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3">
+                <div>
+                  ${!isCancelled ? `
+                    <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder(${idx})">
+                      <i class="bi bi-x-circle me-1"></i> Cancel Order
+                    </button>
+                  ` : ''}
                 </div>
-                <div class="col-md-4 text-end">
-                  <button class="btn btn-sm btn-outline-primary" onclick="downloadInvoice('${order.orderNumber}', ${index})">Download Invoice</button>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-success btn-sm" onclick="reorderItems(${idx})">
+                    <i class="bi bi-arrow-repeat me-1"></i> Buy Again
+                  </button>
+                  <button class="btn btn-primary-remedy btn-sm" onclick="viewInvoice(${idx})">
+                    <i class="bi bi-receipt me-1"></i> View / Print Invoice
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+      }).join('');
+    }
 
-        // Update order count
-        document.getElementById('order-count').textContent = orders.length;
+    // Invoice View
+    function viewInvoice(idx) {
+      const order = ordersList[idx];
+      if (!order) return;
+
+      const subtotal = order.totals ? order.totals.subtotal : (order.subtotal || order.items.reduce((s, i) => s + (i.price * i.quantity), 0));
+      const discount = order.totals ? order.totals.discountAmount : (order.discountAmount || 0);
+      const shipping = order.totals ? order.totals.shipping : (order.shipping !== undefined ? order.shipping : 50);
+      const tax = order.totals ? order.totals.tax : Math.round(subtotal * 0.005);
+      const grandTotal = order.totals ? order.totals.grandTotal : (order.total || subtotal + shipping);
+
+      document.getElementById('invNumber').textContent = order.orderNumber;
+      document.getElementById('invDate').textContent = order.orderDate;
+      document.getElementById('invCustomerName').textContent = order.customerName;
+      document.getElementById('invAddress').textContent = `${order.address}, ${order.city || order.county}`;
+      document.getElementById('invPhone').textContent = order.phone;
+      document.getElementById('invEmail').textContent = order.email;
+      document.getElementById('invPaymentMethod').textContent = order.paymentMethod;
+      document.getElementById('invReceipt').textContent = order.receipt || 'CONFIRMED';
+      document.getElementById('invStatus').textContent = order.status === 'CANCELLED' ? 'CANCELLED' : 'PAID & CONFIRMED';
+
+      const itemsTable = document.getElementById('invItemsTable');
+      itemsTable.innerHTML = order.items.map(item => `
+        <tr>
+          <td>${item.name}</td>
+          <td class="text-center">${item.quantity}</td>
+          <td class="text-end">KES ${item.price.toLocaleString()}</td>
+          <td class="text-end fw-bold">KES ${(item.price * item.quantity).toLocaleString()}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('invSubtotal').textContent = `KES ${subtotal.toLocaleString()}`;
+      document.getElementById('invShipping').textContent = shipping === 0 ? 'FREE' : `KES ${shipping.toLocaleString()}`;
+      document.getElementById('invTax').textContent = `KES ${tax.toLocaleString()}`;
+
+      const discountRow = document.getElementById('invDiscountRow');
+      if (discount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('invDiscount').textContent = `-KES ${discount.toLocaleString()}`;
+      } else {
+        discountRow.style.display = 'none';
       }
 
-      function downloadInvoice(orderNumber, index) {
-        const order = orders[index];
-        let invoiceContent = `
-REMEDY STORE - ORDER INVOICE
-========================================
-Order Number: ${order.orderNumber}
-Order Date: ${order.orderDate}
+      document.getElementById('invTotal').textContent = `KES ${grandTotal.toLocaleString()}`;
 
-CUSTOMER INFORMATION
-========================================
-Name: ${order.customerName}
-Email: ${order.email}
-Phone: ${order.phone}
-Address: ${order.address}, ${order.city}
+      const modal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+      modal.show();
+    }
 
-ORDER ITEMS
-========================================
-`;
-        
-        order.items.forEach(item => {
-          invoiceContent += `${item.name} × ${item.quantity} = KES ${(item.price * item.quantity).toLocaleString()}\n`;
-        });
+    // Buy Again / Reorder
+    function reorderItems(idx) {
+      const order = ordersList[idx];
+      if (!order) return;
 
-        const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const shipping = 50;
-        const tax = Math.round(subtotal * 0.005);
-        
-        invoiceContent += `
-PAYMENT SUMMARY
-========================================
-Subtotal:       KES ${subtotal.toLocaleString()}
-Shipping:       KES ${shipping.toLocaleString()}
-Tax (8%):       KES ${tax.toLocaleString()}
-----------------------------------------
-TOTAL:          KES ${order.total.toLocaleString()}
-
-Payment Method: ${order.paymentMethod}
-Status: CONFIRMED
-
-Thank you for your order!
-========================================
-`;
-
-        // Create download
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(invoiceContent));
-        element.setAttribute('download', `invoice-${orderNumber}.txt`);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-      }
-
-      function cancelOrder(index) {
-        if (confirm('Are you sure you want to cancel this order?')) {
-          orders[index].status = 'CANCELLED';
-          localStorage.setItem('orders', JSON.stringify(orders));
-          displayOrders();
-          alert('Order cancelled successfully.');
-        }
-      }
-
-      // Initialize on page load
-      window.addEventListener('load', () => {
-        displayOrders();
+      order.items.forEach(item => {
+        addToCart(item.name, item.price, item.image);
       });
-    </script>
-</head>
-<body>
-    <nav class="navbar bg-body-tertiary fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="Index.html">REMEDY STORE</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Welcome</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link" href="Index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="about.html">About us</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="blogs.html">Blogs</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="order.html">Place your order</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="orders.html">My Orders</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contacts.html">Contacts us</a>
-          </li>
-        </ul>
-        <form class="d-flex mt-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</nav>
 
-<div class="container mt-5 pt-5">
-  <div class="row mb-4">
-    <div class="col-md-8">
-      <h1>My Orders</h1>
-      <p class="lead text-muted">Track and manage your orders</p>
-    </div>
-    <div class="col-md-4 text-end">
-      <div class="card bg-light">
-        <div class="card-body text-center">
-          <h3 class="card-title text-success" id="order-count">0</h3>
-          <p class="card-text mb-0">Total Orders</p>
-        </div>
-      </div>
-    </div>
-  </div>
+      showToast(`Items from order ${order.orderNumber} added to cart!`, 'success', 'bi-cart-check');
+      window.location.href = 'order.html';
+    }
 
-  <div id="orders-container">
-    <div class="spinner-border text-success" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
+    // Cancel Order
+    function cancelOrder(idx) {
+      if (confirm('Are you sure you want to cancel this order?')) {
+        ordersList[idx].status = 'CANCELLED';
+        localStorage.setItem('orders', JSON.stringify(ordersList));
+        renderOrders();
+        showToast('Order has been cancelled.', 'info', 'bi-x-octagon');
+      }
+    }
 
-  <hr class="my-5">
-
-  <div class="row">
-    <div class="col-md-12">
-      <h5>Order Delivery Timeline</h5>
-      <div class="alert alert-info">
-        <strong>📅 Typical Delivery Process:</strong>
-        <ul class="mb-0 mt-2">
-          <li><strong>Day 1:</strong> Order confirmed and processing begins</li>
-          <li><strong>Day 2:</strong> Items packed and ready for shipment</li>
-          <li><strong>Day 3:</strong> Order dispatched from warehouse</li>
-          <li><strong>Day 4-5:</strong> Delivery to your location</li>
-          <li><strong>14 Days:</strong> Money-back guarantee window</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-4 mb-5">
-    <div class="col-md-12">
-      <h5>Need Help?</h5>
-      <p>If you have any questions about your order, please <a href="contacts.html">contact us</a> or call <strong>+254 715224878</strong></p>
-    </div>
-  </div>
-</div>
-
+    window.addEventListener('DOMContentLoaded', () => {
+      renderOrders();
+    });
+  </script>
 </body>
 </html>

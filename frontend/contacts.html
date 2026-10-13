@@ -1,160 +1,418 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <title>Contact us</title>
-  <script>
-    function handleContactForm(e) {
-      e.preventDefault();
-      const name = document.getElementById('inputName').value;
-      const email = document.getElementById('inputEmail').value;
-      const phone = document.getElementById('inputNumber').value;
-      const county = document.getElementById('countySelect').value;
-      const city = document.getElementById('inputCity').value;
-      const message = document.getElementById('inputOthers').value;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact & Customer Support - Remedy Store</title>
+  <meta name="description" content="Reach our holistic remedy support team in Nairobi, Kenya via phone, email, WhatsApp, or contact form.">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar text-center">
+    <span>🌿 <strong>100% Wildcrafted & Organic</strong> • Free Nairobi Delivery over KES 2,500 • <span class="badge-accent">Instant M-Pesa STK Push</span></span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="Index.html">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </a>
+
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+          <i class="bi bi-bag"></i>
+          <span class="cart-counter">0</span>
+        </button>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navOffcanvas">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="order.html">Shop Remedies</a></li>
+          <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="blogs.html">Wellness Journal</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+          <li class="nav-item"><a class="nav-link active" href="contacts.html">Contact Us</a></li>
+        </ul>
+
+        <div class="d-none d-lg-flex align-items-center gap-3">
+          <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+            <i class="bi bi-bag-check"></i>
+            <span>Cart</span>
+            <span class="cart-counter">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Offcanvas Menu -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="navOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav mb-4">
+        <li class="nav-item"><a class="nav-link" href="Index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="order.html">Shop Remedies</a></li>
+        <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="blogs.html">Wellness Journal</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+        <li class="nav-item"><a class="nav-link active" href="contacts.html">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Header Banner -->
+  <section class="py-5 bg-white border-bottom mb-5">
+    <div class="container text-center py-4">
+      <span class="remedy-badge badge-organic mb-2 d-inline-block">We Are Here For You</span>
+      <h1 class="display-4 fw-bold mb-3">Get in Touch with Our Herbalists</h1>
+      <p class="text-muted mx-auto lead" style="max-width: 650px;">
+        Have questions about remedy dosages, order dispatch, or custom herbal recommendations? Our team in Nairobi is ready to help.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Contact Area -->
+  <div class="container mb-5">
+    <div class="row g-5">
       
-      alert(`Thank you for your message, ${name}! We'll contact you soon at ${email} or ${phone}.`);
-      document.querySelector('form').reset();
+      <!-- Contact Information Cards -->
+      <div class="col-lg-5">
+        <div class="d-flex flex-column gap-3 mb-4">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="d-flex align-items-start gap-3">
+              <div class="trust-icon-box" style="background:#e8f5e9; color:#008751;">
+                <i class="bi bi-whatsapp"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1">WhatsApp Live Chat</h6>
+                <p class="text-muted small mb-2">Fastest response for order and remedy inquiries</p>
+                <a href="https://wa.me/254715224878" target="_blank" class="fw-bold text-success text-decoration-none">
+                  Chat Now: +254 715 224 878 <i class="bi bi-box-arrow-up-right small"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="d-flex align-items-start gap-3">
+              <div class="trust-icon-box" style="background:#fef3c7; color:#d97706;">
+                <i class="bi bi-telephone-fill"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1">Direct Phone Support</h6>
+                <p class="text-muted small mb-2">Speak directly with our apothecary dispatch desk</p>
+                <a href="tel:+254715224878" class="fw-bold text-dark text-decoration-none">
+                  +254 715 224 878
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="d-flex align-items-start gap-3">
+              <div class="trust-icon-box" style="background:#e0f2fe; color:#0284c7;">
+                <i class="bi bi-envelope-fill"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1">Official Email</h6>
+                <p class="text-muted small mb-2">Wholesale, collaborations, and formal inquiries</p>
+                <a href="mailto:info@remedystore.com" class="fw-bold text-dark text-decoration-none">
+                  info@remedystore.com
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="d-flex align-items-start gap-3">
+              <div class="trust-icon-box">
+                <i class="bi bi-geo-alt-fill"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1">Apothecary & Dispatch Office</h6>
+                <p class="text-muted small mb-0">Nairobi, Kenya</p>
+                <small class="text-muted">Mon - Sat: 8:00 AM – 7:00 PM (Closed Sundays)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+          <h4 class="fw-bold mb-2">Send Us a Direct Message</h4>
+          <p class="text-muted small mb-4">Fill out the details below and we will respond via WhatsApp or email within 2 business hours.</p>
+
+          <form id="contactForm" onsubmit="handleContactSubmit(event)">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Your Full Name *</label>
+                <input type="text" class="form-control" id="contactName" placeholder="e.g. David Mwangi" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Email Address *</label>
+                <input type="email" class="form-control" id="contactEmail" placeholder="david@example.com" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Phone / M-Pesa Number *</label>
+                <input type="tel" class="form-control" id="contactPhone" placeholder="0712345678" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">County of Residence *</label>
+                <select class="form-select" id="contactCounty" required>
+                  <option value="">Select County</option>
+                  <option value="Baringo">Baringo</option>
+                  <option value="Bomet">Bomet</option>
+                  <option value="Bungoma">Bungoma</option>
+                  <option value="Busia">Busia</option>
+                  <option value="Elgeyo-Marakwet">Elgeyo-Marakwet</option>
+                  <option value="Embu">Embu</option>
+                  <option value="Garissa">Garissa</option>
+                  <option value="Homa Bay">Homa Bay</option>
+                  <option value="Isiolo">Isiolo</option>
+                  <option value="Kajiado">Kajiado</option>
+                  <option value="Kakamega">Kakamega</option>
+                  <option value="Kericho">Kericho</option>
+                  <option value="Kiambu">Kiambu</option>
+                  <option value="Kilifi">Kilifi</option>
+                  <option value="Kirinyaga">Kirinyaga</option>
+                  <option value="Kisii">Kisii</option>
+                  <option value="Kisumu">Kisumu</option>
+                  <option value="Kitui">Kitui</option>
+                  <option value="Kwale">Kwale</option>
+                  <option value="Laikipia">Laikipia</option>
+                  <option value="Lamu">Lamu</option>
+                  <option value="Machakos">Machakos</option>
+                  <option value="Makueni">Makueni</option>
+                  <option value="Mandera">Mandera</option>
+                  <option value="Marsabit">Marsabit</option>
+                  <option value="Meru">Meru</option>
+                  <option value="Migori">Migori</option>
+                  <option value="Mombasa">Mombasa</option>
+                  <option value="Murang'a">Murang'a</option>
+                  <option value="Nairobi" selected>Nairobi</option>
+                  <option value="Nakuru">Nakuru</option>
+                  <option value="Nandi">Nandi</option>
+                  <option value="Narok">Narok</option>
+                  <option value="Nyamira">Nyamira</option>
+                  <option value="Nyandarua">Nyandarua</option>
+                  <option value="Nyeri">Nyeri</option>
+                  <option value="Samburu">Samburu</option>
+                  <option value="Siaya">Siaya</option>
+                  <option value="Taita-Taveta">Taita-Taveta</option>
+                  <option value="Tana River">Tana River</option>
+                  <option value="Tharaka-Nithi">Tharaka-Nithi</option>
+                  <option value="Trans-Nzoia">Trans-Nzoia</option>
+                  <option value="Turkana">Turkana</option>
+                  <option value="Uasin Gishu">Uasin Gishu</option>
+                  <option value="Vihiga">Vihiga</option>
+                  <option value="Wajir">Wajir</option>
+                  <option value="West Pokot">West Pokot</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Subject / Reason for Contact</label>
+                <select class="form-select" id="contactSubject">
+                  <option value="Remedy Advice">Herbal Remedy Dosage & Recommendation</option>
+                  <option value="Order Tracking">Tracking or Delivery Status</option>
+                  <option value="M-Pesa Payment">M-Pesa Payment Verification</option>
+                  <option value="Wholesale">Wholesale & Bulk Orders</option>
+                  <option value="Other">General Question</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Your Message *</label>
+                <textarea class="form-control" id="contactMessage" rows="4" placeholder="How can our apothecary team assist you today?" required></textarea>
+              </div>
+
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary-remedy w-100 py-3 fw-bold">
+                  <i class="bi bi-send-fill me-1"></i> Send Message
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Frequently Asked Questions Accordion -->
+    <div class="row justify-content-center mt-5 pt-4">
+      <div class="col-lg-10">
+        <div class="text-center mb-4">
+          <span class="remedy-badge badge-organic mb-1 d-inline-block">Quick Help</span>
+          <h2 class="display-6 fw-bold">Frequently Asked Questions</h2>
+        </div>
+
+        <div class="accordion shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                How does the M-Pesa STK Push payment work?
+              </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small">
+                When you click "Confirm & Proceed" on our checkout screen, our Safaricom Daraja API integration immediately prompts your Safaricom mobile phone with a secure pop-up requesting your M-Pesa PIN. As soon as you enter your PIN, the funds are credited and your order confirmation generates instantly!
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                What are your delivery timelines and fees?
+              </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small">
+                Within Nairobi and its environs, delivery is completed within 2 to 6 hours or same-day. Nationwide dispatch via trusted courier partners takes 24 to 48 hours. Standard delivery is just KES 50, and completely FREE on orders above KES 2,500!
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                Are your remedies 100% pure without chemical additives?
+              </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small">
+                Yes, absolutely. We do not blend our powders with starch fillers, artificial colorants, silicon dioxide flow agents, or chemical preservatives. Our raw honey is 100% unfiltered and cold-pressed castor oil is strictly hexane-free.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                What if I need custom guidance on which remedy to choose?
+              </button>
+            </h2>
+            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted small">
+                Reach out to us directly on WhatsApp at <strong>+254 715 224 878</strong>! Our experienced herbalists are happy to listen to your health goals and recommend the exact dosage and synergy for your wellness.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offcanvas Cart -->
+  <div class="offcanvas offcanvas-end offcanvas-cart" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <i class="bi bi-bag-check-fill text-success"></i> Your Shopping Cart
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cartDrawerItems"></div>
+    <div class="p-3 border-top bg-light" id="cartDrawerFooter">
+      <div class="d-flex justify-content-between mb-1 small">
+        <span class="text-muted">Subtotal:</span>
+        <strong id="drawerSubtotal">KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-2 small">
+        <span class="text-muted">Delivery:</span>
+        <span id="drawerShipping">KES 50</span>
+      </div>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between mb-3">
+        <span class="fw-bold">Total:</span>
+        <span class="fw-bold text-success fs-5" id="drawerGrandTotal">KES 0</span>
+      </div>
+      <a href="order.html#checkout" class="btn btn-primary-remedy w-100 py-2">
+        Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-remedy">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="brand-leaf-icon bg-light text-dark"><i class="bi bi-flower1"></i></span>
+            <span class="fs-4 fw-bold text-white font-serif">REMEDY STORE</span>
+          </div>
+          <p class="small text-light mb-3">
+            Kenya's leading online sanctuary for 100% wildcrafted natural remedies, cold-pressed therapeutic oils, and ancient herbal wellness solutions.
+          </p>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="Index.html">Home</a></li>
+            <li><a href="order.html">Shop Catalog</a></li>
+            <li><a href="orders.html">Track Order</a></li>
+            <li><a href="about.html">Our Story</a></li>
+            <li><a href="contacts.html">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-3 col-6">
+          <h5>Contact</h5>
+          <p class="small text-light mb-1"><i class="bi bi-geo-alt text-warning me-1"></i> Nairobi, Kenya</p>
+          <p class="small text-light mb-1"><i class="bi bi-telephone text-warning me-1"></i> +254 715 224 878</p>
+          <p class="small text-light mb-1"><i class="bi bi-envelope text-warning me-1"></i> info@remedystore.com</p>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Payment & Delivery</h5>
+          <p class="small text-light mb-2"><i class="bi bi-phone text-warning me-1"></i> Instant M-Pesa STK Push</p>
+          <p class="small text-light mb-2"><i class="bi bi-truck text-warning me-1"></i> Nairobi Same-Day Delivery</p>
+        </div>
+      </div>
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <p class="mb-0 text-muted">&copy; 2026 Remedy Store Kenya. All rights reserved.</p>
+        <p class="mb-0 text-muted">Pure Botanical Ingredients • Secure Safaricom M-Pesa Integration</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+  <script>
+    function handleContactSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('contactName').value;
+      const phone = document.getElementById('contactPhone').value;
+      const email = document.getElementById('contactEmail').value;
+
+      showToast(`Thank you, <strong>${name}</strong>! Your inquiry was received. We will contact you at ${phone} / ${email} shortly.`, 'success', 'bi-envelope-check');
+      document.getElementById('contactForm').reset();
     }
   </script>
- </head>
-<body>
-     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-     <nav class="navbar bg-body-tertiary fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="Index.html">REMEDY STORE</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Welcome</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link" href="Index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="about.html">About us</a>
-
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="blogs.html">Blogs</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="order.html">Place your order</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="orders.html">My Orders</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="contacts.html">Contacts us</a>
-          </li>
-        </ul>
-        <form class="d-flex mt-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</nav>
-
-<div class="container mt-5 pt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <h2 class="mb-4">Contact Us</h2>
-      <form onsubmit="handleContactForm(event)">
-        <div class="mb-3">
-          <label for="inputName" class="form-label">Full Name</label>
-          <input type="text" class="form-control" id="inputName" placeholder="Enter your full name" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="inputEmail" class="form-label">Email</label>
-          <input type="email" class="form-control" id="inputEmail" placeholder="Enter your email" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="inputNumber" class="form-label">Phone Number</label>
-          <input type="tel" class="form-control" id="inputNumber" placeholder="Enter your phone number" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="countySelect" class="form-label">Place of Residence (County)</label>
-          <select class="form-select" id="countySelect" required>
-            <option value="">Select a county</option>
-            <option value="Baringo">Baringo</option>
-            <option value="Bomet">Bomet</option>
-            <option value="Bungoma">Bungoma</option>
-            <option value="Busia">Busia</option>
-            <option value="Elgeyo-Marakwet">Elgeyo-Marakwet</option>
-            <option value="Embu">Embu</option>
-            <option value="Garissa">Garissa</option>
-            <option value="Homabay">Homa Bay</option>
-            <option value="Isiolo">Isiolo</option>
-            <option value="Kajiado">Kajiado</option>
-            <option value="Kakamega">Kakamega</option>
-            <option value="Kericho">Kericho</option>
-            <option value="Kiambu">Kiambu</option>
-            <option value="Kilifi">Kilifi</option>
-            <option value="Kirinyaga">Kirinyaga</option>
-            <option value="Kisii">Kisii</option>
-            <option value="Kisumu">Kisumu</option>
-            <option value="Kitui">Kitui</option>
-            <option value="Kwale">Kwale</option>
-            <option value="Laikipia">Laikipia</option>
-            <option value="Lamu">Lamu</option>
-            <option value="Machakos">Machakos</option>
-            <option value="Makueni">Makueni</option>
-            <option value="Mandera">Mandera</option>
-            <option value="Marsabit">Marsabit</option>
-            <option value="Meru">Meru</option>
-            <option value="Migori">Migori</option>
-            <option value="Mombasa">Mombasa</option>
-            <option value="Murang'a">Murang'a</option>
-            <option value="Nairobi">Nairobi</option>
-            <option value="Nakuru">Nakuru</option>
-            <option value="Nandi">Nandi</option>
-            <option value="Narok">Narok</option>
-            <option value="Nyamira">Nyamira</option>
-            <option value="Nyandarua">Nyandarua</option>
-            <option value="Nyeri">Nyeri</option>
-            <option value="Samburu">Samburu</option>
-            <option value="Siaya">Siaya</option>
-            <option value="Taita Taveta">Taita Taveta</option>
-            <option value="Tana River">Tana River</option>
-            <option value="Tharaka Nithi">Tharaka Nithi</option>
-            <option value="Trans Nzoia">Trans Nzoia</option>
-            <option value="Turkana">Turkana</option>
-            <option value="Uasin Gishu">Uasin Gishu</option>
-            <option value="Vihiga">Vihiga</option>
-            <option value="Wajir">Wajir</option>
-            <option value="West Pokot">West Pokot</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label for="inputCity" class="form-label">City</label>
-          <input type="text" class="form-control" id="inputCity" placeholder="Enter your city" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="inputOthers" class="form-label">Additional Information</label>
-          <textarea class="form-control" id="inputOthers" rows="3" placeholder="Enter any additional information"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-success">Submit</button>
-        <button type="reset" class="btn btn-secondary ms-2">Clear</button>
-      </form>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>

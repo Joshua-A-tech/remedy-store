@@ -1,73 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link href="style.css" rel="stylesheet">
-  <title>Remedy Store</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remedy Store - Pure Natural Remedies & Holistic Wellness</title>
+  <meta name="description" content="Premium wildcrafted herbal powders, cold-pressed therapeutic oils, and raw superfoods with instant M-Pesa payment and express delivery across Kenya.">
+  
+  <!-- Google Fonts & Bootstrap Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Custom Modern Design System -->
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar bg-body-tertiary fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="Index.html">REMEDY STORE</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Welcome</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="Index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="about.html">About us</a>
 
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar text-center">
+    <span>🌿 <strong>100% Wildcrafted & Organic</strong> • Free Nairobi Delivery on Orders over KES 2,500 • <span class="badge-accent">Instant M-Pesa STK Push</span></span>
+  </div>
+
+  <!-- Main Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="Index.html">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </a>
+
+      <!-- Right mobile icons -->
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+          <i class="bi bi-bag"></i>
+          <span class="cart-counter">0</span>
+        </button>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navOffcanvas">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <!-- Desktop Navigation Links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" href="Index.html">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="blogs.html">Blogs</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="order.html">Place your order</a>
+            <a class="nav-link" href="order.html">Shop Remedies</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="orders.html">My Orders</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="contacts.html">Contacts us</a>
+            <a class="nav-link" href="blogs.html">Wellness Journal</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="about.html">Our Story</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="contacts.html">Contact Us</a>
           </li>
         </ul>
-        <form class="d-flex mt-3" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+
+        <!-- Right Action Items -->
+        <div class="d-none d-lg-flex align-items-center gap-3">
+          <a href="order.html" class="text-muted text-decoration-none small fw-semibold">
+            <i class="bi bi-search me-1"></i> Search Catalog
+          </a>
+          <button class="btn btn-cart-nav" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+            <i class="bi bi-bag-check"></i>
+            <span>Cart</span>
+            <span class="cart-counter">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Offcanvas Menu -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="navOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <span class="brand-leaf-icon"><i class="bi bi-flower1"></i></span>
+        REMEDY STORE
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav mb-4">
+        <li class="nav-item"><a class="nav-link active" href="Index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="order.html">Shop Remedies</a></li>
+        <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="blogs.html">Wellness Journal</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">Our Story</a></li>
+        <li class="nav-item"><a class="nav-link" href="contacts.html">Contact Us</a></li>
+      </ul>
+      <div class="p-3 bg-light rounded-3">
+        <h6>Customer Support</h6>
+        <p class="small text-muted mb-2">Need quick assistance or product recommendation?</p>
+        <a href="https://wa.me/254715224878" target="_blank" class="btn btn-success btn-sm w-100 mb-2">
+          <i class="bi bi-whatsapp me-1"></i> Chat on WhatsApp
+        </a>
+        <a href="tel:+254715224878" class="btn btn-outline-dark btn-sm w-100">
+          <i class="bi bi-telephone me-1"></i> Call +254 715 224 878
+        </a>
       </div>
     </div>
   </div>
-</nav>
 
-<div class="hero-section">
-  <div class="hero-background"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <h1>Welcome to Remedy Store</h1>
-    <p>Natural Healing Solutions for Your Wellness</p>
-  </div>
-</div>
+  <!-- Hero Section -->
+  <section class="hero-luxury">
+    <div class="container position-relative z-3">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <div class="hero-tag">
+            <i class="bi bi-patch-check-fill"></i> Pure Organic Herbalism
+          </div>
+          <h1 class="hero-title">Nature's Medicine Cabinet for Vibrant Living.</h1>
+          <p class="hero-subtitle">
+            Ethically sourced botanical powders, cold-pressed therapeutic oils, and wildcrafted superfoods. Formulated without synthetic additives to naturally restore your body, energy, and peace.
+          </p>
+          <div class="hero-buttons">
+            <a href="order.html" class="btn btn-primary-remedy btn-lg">
+              <i class="bi bi-bag-plus"></i> Shop Natural Remedies
+            </a>
+            <a href="#featured-section" class="btn btn-secondary-remedy btn-lg">
+              <i class="bi bi-compass"></i> Explore Bestsellers
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<div class="container mt-5 py-5">
-  <div class="row">
-    <div class="col-md-12">
-      <h2 class="text-center mb-4">Discover Our Premium Natural Remedies</h2>
-      <p class="text-center">Explore our collection of carefully curated natural remedies and wellness products.</p>
+  <!-- Trust Badges Strip -->
+  <div class="container mb-5">
+    <div class="trust-strip">
+      <div class="row g-4">
+        <div class="col-md-3 col-6">
+          <div class="trust-item">
+            <div class="trust-icon-box">
+              <i class="bi bi-flower2"></i>
+            </div>
+            <div>
+              <h6>100% Wildcrafted</h6>
+              <p>No synthetic chemicals or fillers</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="trust-item">
+            <div class="trust-icon-box" style="background:#e8f5e9; color:#008751;">
+              <i class="bi bi-phone-vibrate"></i>
+            </div>
+            <div>
+              <h6>Instant M-Pesa</h6>
+              <p>Secure STK Push PIN prompt</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="trust-item">
+            <div class="trust-icon-box" style="background:#e0f2fe; color:#0284c7;">
+              <i class="bi bi-truck"></i>
+            </div>
+            <div>
+              <h6>Express Delivery</h6>
+              <p>Same-day Nairobi, fast nationwide</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="trust-item">
+            <div class="trust-icon-box" style="background:#fef3c7; color:#d97706;">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div>
+              <h6>Guaranteed Quality</h6>
+              <p>Lab-tested for maximum potency</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
+  <!-- Remedy Categories Grid -->
+  <section class="py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="text-uppercase fw-bold text-success small letter-spacing-1">Formulated by Nature</span>
+        <h2 class="display-6 fw-bold mt-1">Holistic Wellness Categories</h2>
+        <p class="text-muted mx-auto" style="max-width: 600px;">Explore targeted natural remedies designed to support heart vitality, digestive harmony, calm focus, and radiant skin.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100 p-4 text-center bg-white hover-lift">
+            <div class="mx-auto mb-3 text-success fs-1">
+              <i class="bi bi-droplet-half"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Oils & Elixirs</h5>
+            <p class="text-muted small mb-3">Pure cold-pressed therapeutic oils like Ricinus Castor Oil for hair growth, joint relief, and skin moisture.</p>
+            <a href="order.html?cat=Oils" class="fw-bold text-success text-decoration-none small mt-auto">View Products <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100 p-4 text-center bg-white hover-lift">
+            <div class="mx-auto mb-3 text-warning fs-1">
+              <i class="bi bi-magic"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Powders & Spices</h5>
+            <p class="text-muted small mb-3">Stone-ground medicinal spices including high-capsaicin Cayenne, Golden Turmeric, and detox Charcoal.</p>
+            <a href="order.html?cat=Powders" class="fw-bold text-success text-decoration-none small mt-auto">View Products <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100 p-4 text-center bg-white hover-lift">
+            <div class="mx-auto mb-3 text-danger fs-1">
+              <i class="bi bi-cup-hot"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Herbal Teas</h5>
+            <p class="text-muted small mb-3">Whole dried Hibiscus and wild Stinging Nettle for blood pressure balance, kidney health, and seasonal vitality.</p>
+            <a href="order.html?cat=Teas" class="fw-bold text-success text-decoration-none small mt-auto">View Products <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100 p-4 text-center bg-white hover-lift">
+            <div class="mx-auto mb-3 text-primary fs-1">
+              <i class="bi bi-gem"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Raw Superfoods</h5>
+            <p class="text-muted small mb-3">Unfiltered raw African forest honey, organic chia seeds, and golden flax packed with natural omegas & enzymes.</p>
+            <a href="order.html?cat=Superfoods" class="fw-bold text-success text-decoration-none small mt-auto">View Products <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Bestsellers Section -->
+  <section class="py-5 bg-white" id="featured-section">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+        <div>
+          <span class="text-uppercase fw-bold text-success small">Customer Favorites</span>
+          <h2 class="display-6 fw-bold mb-0">Featured Remedies</h2>
+        </div>
+        <a href="order.html" class="btn btn-outline-success rounded-pill px-4">
+          View All 12 Products <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+
+      <!-- Dynamic or fallback featured products grid -->
+      <div class="row g-4" id="homeFeaturedGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Editorial Section: The Remedy Difference -->
+  <section class="py-5 my-4">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <div class="position-relative">
+            <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80" alt="Botanical remedies" class="img-fluid rounded-4 shadow-lg w-100" style="max-height: 480px; object-fit: cover;">
+            <div class="position-absolute bottom-0 start-0 m-4 p-3 bg-white rounded-3 shadow-md border" style="max-width: 260px;">
+              <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-shield-fill-check fs-2 text-success"></i>
+                <div>
+                  <h6 class="mb-0 fw-bold">100% Guaranteed</h6>
+                  <small class="text-muted">Pure & chemical-free herbal sources</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <span class="text-uppercase fw-bold text-success small letter-spacing-1">Ancient African Wisdom</span>
+          <h2 class="display-6 fw-bold mt-1 mb-3">Heal from the Roots Up with Pure Plant Alchemy.</h2>
+          <p class="text-muted leading-relaxed mb-4">
+            At Remedy Store, we believe true wellness comes from living in sync with nature. We never use artificial preservatives, dyes, or industrial solvent extracts. Every batch of our organic Moringa, Cold-Pressed Castor Oil, and Wild Raw Honey is harvested with reverence for the earth and tested for peak bioactivity.
+          </p>
+
+          <div class="d-flex flex-column gap-3 mb-4">
+            <div class="d-flex gap-3">
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+              <div>
+                <h6 class="fw-bold mb-0">Stone-Ground & Cold-Pressed</h6>
+                <small class="text-muted">Preserves sensitive phytonutrients and enzymes that high heat destroys.</small>
+              </div>
+            </div>
+            <div class="d-flex gap-3">
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+              <div>
+                <h6 class="fw-bold mb-0">Fair Direct-Trade Sourcing</h6>
+                <small class="text-muted">Partnered directly with sustainable smallholder herb farmers in Kenya.</small>
+              </div>
+            </div>
+            <div class="d-flex gap-3">
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+              <div>
+                <h6 class="fw-bold mb-0">Frictionless M-Pesa Mobile Payments</h6>
+                <small class="text-muted">Instant Daraja STK Push prompt directly to your phone for maximum peace of mind.</small>
+              </div>
+            </div>
+          </div>
+
+          <a href="about.html" class="btn btn-primary-remedy">
+            Read Our Full Story <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Customer Reviews Section -->
+  <section class="py-5 bg-white border-top border-bottom">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="text-uppercase fw-bold text-success small">Verified Customer Feedback</span>
+        <h2 class="display-6 fw-bold mt-1">Loved by Over 10,000+ Kenyans</h2>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="p-4 bg-light rounded-4 h-100 border">
+            <div class="text-warning mb-2 fs-5">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <p class="small text-muted mb-3">
+              "The cold-pressed castor oil has transformed my hair thickness within 6 weeks! And the M-Pesa STK push checkout was smooth and instantaneous. Delivered right to Kilimani the same day."
+            </p>
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                WN
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">Wanjiku N.</h6>
+                <small class="text-muted">Nairobi, Kenya</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 bg-light rounded-4 h-100 border">
+            <div class="text-warning mb-2 fs-5">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <p class="small text-muted mb-3">
+              "I take a quarter teaspoon of their Cayenne pepper in warm lemon water every morning. My digestion and circulation have never felt better. 100% genuine and fresh aroma!"
+            </p>
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                KO
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">Kevin O.</h6>
+                <small class="text-muted">Mombasa, Kenya</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 bg-light rounded-4 h-100 border">
+            <div class="text-warning mb-2 fs-5">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <p class="small text-muted mb-3">
+              "The Wild Raw Honey is top tier—it has real honeycomb propolis flavor unlike store-bought sugary syrups. Placing my third order today for my family!"
+            </p>
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                AM
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">Amina M.</h6>
+                <small class="text-muted">Nakuru, Kenya</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter VIP Section -->
+  <section class="py-5">
+    <div class="container">
+      <div class="p-5 rounded-4 shadow-sm text-center text-white" style="background: linear-gradient(135deg, #143828 0%, #2d6a4f 100%);">
+        <h2 class="display-6 fw-bold mb-2">Claim 10% Off Your First Order</h2>
+        <p class="mx-auto text-light mb-4" style="max-width: 550px;">
+          Join our holistic community. Get herbal remedy guides, wellness rituals, and promo code <strong class="text-warning">WELLNESS10</strong> directly to your inbox.
+        </p>
+        <form class="row justify-content-center g-2" onsubmit="event.preventDefault(); showToast('🎉 Thank you! Use promo code WELLNESS10 at checkout.', 'success', 'bi-gift-fill');">
+          <div class="col-md-5">
+            <input type="email" class="form-control form-control-lg border-0" placeholder="Enter your email address" required>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold text-dark">
+              Subscribe
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Global Offcanvas Cart Drawer -->
+  <div class="offcanvas offcanvas-end offcanvas-cart" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2">
+        <i class="bi bi-bag-check-fill text-success"></i> Your Shopping Cart
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cartDrawerItems">
+      <!-- Items dynamically populated by app.js -->
+    </div>
+    <div class="p-3 border-top bg-light" id="cartDrawerFooter">
+      <div class="d-flex justify-content-between mb-1 small">
+        <span class="text-muted">Subtotal:</span>
+        <strong id="drawerSubtotal">KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-1 small" id="drawerDiscountRow" style="display: none;">
+        <span class="text-success">Discount:</span>
+        <strong class="text-success" id="drawerDiscount">-KES 0</strong>
+      </div>
+      <div class="d-flex justify-content-between mb-2 small">
+        <span class="text-muted">Standard Delivery:</span>
+        <span id="drawerShipping">KES 50</span>
+      </div>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between mb-3">
+        <span class="fw-bold">Total:</span>
+        <span class="fw-bold text-success fs-5" id="drawerGrandTotal">KES 0</span>
+      </div>
+      <div class="input-group input-group-sm mb-3">
+        <input type="text" class="form-control" id="couponInput" placeholder="Promo code (e.g. WELLNESS10)">
+        <button class="btn btn-outline-success" type="button" id="applyCouponBtn">Apply</button>
+      </div>
+      <a href="order.html#checkout" class="btn btn-primary-remedy w-100 py-2">
+        Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Modern Universal Footer -->
+  <footer class="footer-remedy">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="brand-leaf-icon bg-light text-dark"><i class="bi bi-flower1"></i></span>
+            <span class="fs-4 fw-bold text-white font-serif">REMEDY STORE</span>
+          </div>
+          <p class="small text-light mb-3">
+            Kenya's leading online sanctuary for 100% wildcrafted natural remedies, cold-pressed therapeutic oils, and ancient herbal wellness solutions.
+          </p>
+          <div class="d-flex gap-3">
+            <a href="https://wa.me/254715224878" class="text-white fs-5" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+            <a href="tel:+254715224878" class="text-white fs-5" title="Phone"><i class="bi bi-telephone"></i></a>
+            <a href="mailto:info@remedystore.com" class="text-white fs-5" title="Email"><i class="bi bi-envelope"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-3 col-6">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="Index.html">Home</a></li>
+            <li><a href="order.html">Shop Catalog</a></li>
+            <li><a href="orders.html">Track Order</a></li>
+            <li><a href="about.html">Our Story</a></li>
+            <li><a href="blogs.html">Wellness Blog</a></li>
+            <li><a href="contacts.html">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-6">
+          <h5>Categories</h5>
+          <ul>
+            <li><a href="order.html?cat=Oils">Cold-Pressed Oils</a></li>
+            <li><a href="order.html?cat=Powders">Herbal Powders</a></li>
+            <li><a href="order.html?cat=Superfoods">Raw Superfoods</a></li>
+            <li><a href="order.html?cat=Teas">Medicinal Teas</a></li>
+            <li><a href="order.html">All 12 Remedies</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <h5>Store Location</h5>
+          <p class="small text-light mb-1"><i class="bi bi-geo-alt me-2 text-warning"></i> Nairobi, Kenya</p>
+          <p class="small text-light mb-1"><i class="bi bi-clock me-2 text-warning"></i> Mon - Sat: 8:00 AM - 7:00 PM</p>
+          <p class="small text-light mb-3"><i class="bi bi-phone me-2 text-warning"></i> +254 715 224 878</p>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <span class="payment-badge"><i class="bi bi-phone-fill text-success me-1"></i> M-Pesa STK</span>
+            <span class="payment-badge"><i class="bi bi-credit-card-2-front me-1"></i> Visa / Card</span>
+            <span class="payment-badge"><i class="bi bi-cash-stack me-1"></i> Cash on Delivery</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <p class="mb-0 text-muted">&copy; 2026 Remedy Store Kenya. All rights reserved.</p>
+        <p class="mb-0 text-muted">Natural Healing • Lab Verified • Secure Mobile Checkout</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Populate Featured Products on Homepage
+    window.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('homeFeaturedGrid');
+      if (grid && REMEDY_PRODUCTS) {
+        // Pick top 4 products
+        const featured = REMEDY_PRODUCTS.slice(0, 4);
+        grid.innerHTML = featured.map(item => `
+          <div class="col-lg-3 col-md-6">
+            <div class="product-card">
+              <div class="product-card-image-wrap">
+                <img src="${item.image}" alt="${item.name}" class="product-card-image">
+                <span class="product-card-badge remedy-badge ${item.badgeType}">${item.badge}</span>
+                <a href="order.html" class="product-card-quickview" title="View details">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </div>
+              <div class="product-card-body">
+                <span class="product-category">${item.category}</span>
+                <h5 class="product-title">${item.name}</h5>
+                <div class="product-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <span class="review-count">(${item.reviewsCount})</span>
+                </div>
+                <p class="product-description">${item.benefits}</p>
+                <div class="product-price-row">
+                  <span class="product-price">KES ${item.price.toLocaleString()}</span>
+                  <span class="product-original-price">KES ${item.originalPrice.toLocaleString()}</span>
+                </div>
+                <button class="btn btn-primary-remedy w-100" onclick="addToCart('${item.name}', ${item.price}, '${item.image}')">
+                  <i class="bi bi-bag-plus"></i> Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    });
+  </script>
 </body>
 </html>
