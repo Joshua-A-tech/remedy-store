@@ -1,0 +1,62 @@
+{
+  "cayenne-pepper": {
+    "stock": 45,
+    "lowStockThreshold": 10
+  },
+  "castor-oil": {
+    "stock": 28,
+    "lowStockThreshold": 8
+  },
+  "raw-honey": {
+    "stock": 15,
+    "lowStockThreshold": 5
+  },
+  "hibiscus-flowers": {
+    "stock": 32,
+    "lowStockThreshold": 8
+  },
+  "moringa-powder": {
+    "stock": 22,
+    "lowStockThreshold": 6
+  },
+  "slippery-elm": {
+    "stock": 9,
+    "lowStockThreshold": 10
+  },
+  "turmeric-powder": {
+    "stock": 50,
+    "lowStockThreshold": 10
+  },
+  "activated-charcoal": {
+    "stock": 35,
+    "lowStockThreshold": 8
+  },
+  "ashwagandha-root": {
+    "stock": 19,
+    "lowStockThreshold": 5
+  },
+  "flax-seeds": {
+    "stock": 40,
+    "lowStockThreshold": 10
+  },
+  "chia-seeds": {
+    "stock": 14,
+    "lowStockThreshold": 5
+  },
+  "stinging-nettle": {
+    "stock": 25,
+    "lowStockThreshold": 8
+  },
+  "immunity-bundle": {
+    "stock": 11,
+    "lowStockThreshold": 4
+  },
+  "gut-bundle": {
+    "stock": 8,
+    "lowStockThreshold": 4
+  },
+  "radiance-bundle": {
+    "stock": 15,
+    "lowStockThreshold": 5
+  }
+}

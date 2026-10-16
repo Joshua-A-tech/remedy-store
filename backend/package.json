@@ -8,12 +8,14 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "axios": "^1.4.0",
-    "cors": "^2.8.5",
     "body-parser": "^1.20.2",
-    "moment": "^2.29.4",
-    "dotenv": "^16.3.1"
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

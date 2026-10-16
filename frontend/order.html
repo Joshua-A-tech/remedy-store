@@ -122,6 +122,7 @@
     <!-- Category Filter Pills -->
     <div class="filter-pills" id="categoryFilterPills">
       <button class="filter-pill active" data-category="all">All Remedies</button>
+      <button class="filter-pill" data-category="Synergistic Bundles">🔥 Value Bundles</button>
       <button class="filter-pill" data-category="Powders & Spices">Powders & Spices</button>
       <button class="filter-pill" data-category="Oils & Elixirs">Oils & Elixirs</button>
       <button class="filter-pill" data-category="Raw Superfoods">Raw Superfoods</button>
@@ -785,16 +786,28 @@
       }, 1000);
     }
 
-    // Finalize Order: Save to localStorage and redirect to My Orders
-    function finalizeOrder(order) {
+    // Finalize Order: Save to Database & LocalStorage, Trigger SMS, and Redirect
+    async function finalizeOrder(order) {
+      // 1. Post to backend persistent database
+      try {
+        await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(order)
+        });
+      } catch (err) {
+        console.warn('Backend order sync warning:', err.message);
+      }
+
+      // 2. Save locally in browser
       let orders = JSON.parse(localStorage.getItem('orders')) || [];
       orders.unshift(order);
       localStorage.setItem('orders', JSON.stringify(orders));
 
-      // Clear Shopping Cart
+      // 3. Clear Shopping Cart
       clearCart();
 
-      showToast(`🎉 Order ${order.orderNumber} confirmed! Redirecting to tracker...`, 'success', 'bi-check2-circle');
+      showToast(`🎉 Order ${order.orderNumber} confirmed! SMS confirmation dispatched.`, 'success', 'bi-check2-circle');
 
       setTimeout(() => {
         window.location.href = 'orders.html';

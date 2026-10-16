@@ -6,6 +6,51 @@
 // Shared Product Catalog (Fallback if API is unavailable or static)
 const REMEDY_PRODUCTS = [
   {
+    id: "immunity-bundle",
+    name: "Immunity & Vitality Trio Bundle",
+    category: "Synergistic Bundles",
+    badge: "Save KES 300",
+    badgeType: "badge-organic",
+    price: 2600,
+    originalPrice: 2900,
+    rating: 5.0,
+    reviewsCount: 92,
+    image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80",
+    benefits: "Our flagship healing trio: Pure Wild Raw Honey, Organic Moringa Powder, and Stone-Ground Cayenne. Maximizes cellular energy and viral immunity.",
+    usage: "Combine 1 tbsp Honey + 1 tsp Moringa + 1/4 tsp Cayenne in warm water with lemon daily.",
+    ingredients: "Pure Forest Honey (500g) + Moringa Leaf Powder (250g) + Cayenne Pepper (100g)"
+  },
+  {
+    id: "gut-bundle",
+    name: "Gut Healing & Acid Reflux Kit",
+    category: "Synergistic Bundles",
+    badge: "Save KES 250",
+    badgeType: "badge-bestseller",
+    price: 1550,
+    originalPrice: 1800,
+    rating: 4.9,
+    reviewsCount: 64,
+    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=600&q=80",
+    benefits: "Soothes acid reflux, seals irritated gut lining, and detoxifies the intestinal tract with Slippery Elm, Curcumin, and Coconut Charcoal.",
+    usage: "Drink Slippery Elm before meals; take charcoal on empty stomach; enjoy golden turmeric at night.",
+    ingredients: "Slippery Elm Powder + Golden Turmeric Curcumin + Steam Activated Charcoal"
+  },
+  {
+    id: "radiance-bundle",
+    name: "Hair Growth & Skin Radiance Pack",
+    category: "Synergistic Bundles",
+    badge: "Save KES 400",
+    badgeType: "badge-popular",
+    price: 2000,
+    originalPrice: 2400,
+    rating: 4.9,
+    reviewsCount: 78,
+    image: "https://images.unsplash.com/photo-1510443310065-27f12440ea29?auto=format&fit=crop&w=600&q=80",
+    benefits: "Stimulates thick hair follicle growth, eliminates dandruff, and nourishes skin from inside out with cold-pressed Castor Oil & Omega-3 Chia.",
+    usage: "Massage warm castor oil into scalp 2x weekly. Soak chia seeds in daily smoothies.",
+    ingredients: "Cold-Pressed Castor Oil (500ml) + Raw Organic Chia Seeds (500g)"
+  },
+  {
     id: "cayenne-pepper",
     name: "Cayenne Pepper",
     category: "Powders & Spices",
@@ -426,5 +471,20 @@ window.addEventListener('DOMContentLoaded', () => {
         applyCouponCode(input.value);
       }
     });
+  }
+
+  // Inject Floating WhatsApp Support Widget on Storefront pages
+  if (!document.getElementById('floatingWhatsAppBtn') && !window.location.pathname.includes('admin')) {
+    const waBtn = document.createElement('a');
+    waBtn.id = 'floatingWhatsAppBtn';
+    waBtn.href = 'https://wa.me/254715224878?text=Hello%20Remedy%20Store%2C%20I%20would%20like%20guidance%20on%20natural%20remedies...';
+    waBtn.target = '_blank';
+    waBtn.rel = 'noopener noreferrer';
+    waBtn.title = 'Chat with an Herbalist on WhatsApp';
+    waBtn.innerHTML = '<i class="bi bi-whatsapp fs-5"></i><span class="d-none d-md-inline ms-2">Ask an Herbalist</span>';
+    waBtn.style.cssText = 'position: fixed; bottom: 24px; right: 24px; background: #25D366; color: #fff; font-weight: 700; font-size: 0.95rem; padding: 12px 20px; border-radius: 50px; display: inline-flex; align-items: center; box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4); z-index: 1020; text-decoration: none; transition: all 0.25s ease;';
+    waBtn.onmouseenter = () => waBtn.style.transform = 'translateY(-3px) scale(1.03)';
+    waBtn.onmouseleave = () => waBtn.style.transform = 'translateY(0) scale(1)';
+    document.body.appendChild(waBtn);
   }
 });

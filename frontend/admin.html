@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal & Dispatch Management - Remedy Store</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+
+  <style>
+    body { padding-top: 70px; background-color: #f4f6f5; }
+    .admin-navbar { background: #0c2319 !important; }
+    .kpi-card { border-radius: 14px; border: 1px solid #e1e7e4; background: #fff; transition: all 0.2s ease; }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
+    .table-orders th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #526058; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar navbar-dark admin-navbar fixed-top py-2">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="Index.html">
+        <span class="brand-leaf-icon bg-success text-white"><i class="bi bi-flower1"></i></span>
+        <span class="fw-bold font-serif">REMEDY STORE ADMIN</span>
+      </a>
+      <div class="d-flex align-items-center gap-3">
+        <a href="Index.html" class="btn btn-outline-light btn-sm" target="_blank">
+          <i class="bi bi-box-arrow-up-right me-1"></i> View Live Store
+        </a>
+        <button class="btn btn-outline-danger btn-sm" onclick="lockAdmin()">
+          <i class="bi bi-lock me-1"></i> Lock
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Login Modal (Passcode Protect) -->
+  <div class="modal fade" id="adminLoginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modal-content-remedy p-4 text-center">
+        <div class="modal-body">
+          <div class="brand-leaf-icon mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.8rem;">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+          <h4 class="fw-bold mb-1">Store Dispatch Portal</h4>
+          <p class="text-muted small mb-4">Enter your management passcode to manage incoming orders and live inventory.</p>
+
+          <form onsubmit="handleAdminLogin(event)">
+            <div class="mb-3">
+              <input type="password" id="adminPasscodeInput" class="form-control form-control-lg text-center" placeholder="Passcode (default: remedy2026)" required autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary-remedy w-100 py-3 fw-bold">
+              Unlock Portal <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <div class="container-fluid px-4 py-4" id="adminDashboardContent" style="display: none;">
+    
+    <!-- KPI Analytics Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="p-3 kpi-card">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted small fw-bold text-uppercase">Total Sales</span>
+            <div class="text-success fs-4"><i class="bi bi-cash-stack"></i></div>
+          </div>
+          <h3 class="fw-bold mb-0 text-success" id="statTotalRev">KES 0</h3>
+          <small class="text-muted" id="statTodayRev">Today: KES 0</small>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="p-3 kpi-card">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted small fw-bold text-uppercase">All Orders</span>
+            <div class="text-primary fs-4"><i class="bi bi-bag-check"></i></div>
+          </div>
+          <h3 class="fw-bold mb-0 text-dark" id="statTotalOrders">0</h3>
+          <small class="text-muted">Lifetime transactions</small>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="p-3 kpi-card">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted small fw-bold text-uppercase">Pending Dispatch</span>
+            <div class="text-warning fs-4"><i class="bi bi-hourglass-split"></i></div>
+          </div>
+          <h3 class="fw-bold mb-0 text-warning" id="statPendingOrders">0</h3>
+          <small class="text-muted">Requires packing & rider</small>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="p-3 kpi-card">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted small fw-bold text-uppercase">Low Stock Alert</span>
+            <div class="text-danger fs-4"><i class="bi bi-exclamation-triangle"></i></div>
+          </div>
+          <h3 class="fw-bold mb-0 text-danger" id="statLowStock">0</h3>
+          <small class="text-muted">Items need restocking</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs & Search Controls -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+      <div class="card-body p-4">
+        
+        <ul class="nav nav-pills mb-4" id="adminTabs">
+          <li class="nav-item">
+            <button class="nav-link active" onclick="switchTab('orders', 'ALL')">All Orders</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" onclick="switchTab('orders', 'CONFIRMED')">Pending Packing</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" onclick="switchTab('orders', 'DISPATCHED')">Out with Rider</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" onclick="switchTab('orders', 'DELIVERED')">Completed</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" onclick="switchTab('inventory')">Inventory & Stock</button>
+          </li>
+        </ul>
+
+        <!-- Search Bar -->
+        <div class="row align-items-center g-3 mb-3" id="ordersSearchBar">
+          <div class="col-md-6">
+            <div class="search-input-wrap">
+              <i class="bi bi-search search-icon"></i>
+              <input type="text" id="adminOrderSearch" class="form-control" placeholder="Search by customer name, phone, order number, or M-Pesa receipt...">
+            </div>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <button class="btn btn-outline-success btn-sm me-2" onclick="refreshAdminData()">
+              <i class="bi bi-arrow-clockwise me-1"></i> Refresh Live Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Orders Table View -->
+        <div id="ordersTableView">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-orders mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer & Contact</th>
+                  <th>Delivery Location</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Payment Ref</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminOrdersTbody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Inventory Table View -->
+        <div id="inventoryTableView" style="display: none;">
+          <h5 class="fw-bold mb-3">Product Stock Levels & Reorder Triggers</h5>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Remedy Name</th>
+                  <th>Category</th>
+                  <th>Current Stock</th>
+                  <th>Status</th>
+                  <th style="width: 200px;">Adjust Stock</th>
+                </tr>
+              </thead>
+              <tbody id="adminInventoryTbody">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Detail & Dispatch Modal -->
+  <div class="modal fade" id="orderActionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content modal-content-remedy">
+        <div class="modal-header modal-header-remedy">
+          <h5 class="modal-title" id="actionModalTitle">Order Management</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-4 mb-4">
+            <div class="col-md-6 border-end">
+              <h6 class="fw-bold text-success mb-2">Customer & Destination</h6>
+              <p class="mb-1 fw-bold" id="actionCustName"></p>
+              <p class="mb-1 small text-muted"><i class="bi bi-telephone me-1"></i> <span id="actionPhone"></span></p>
+              <p class="mb-1 small text-muted"><i class="bi bi-envelope me-1"></i> <span id="actionEmail"></span></p>
+              <p class="mb-2 small text-muted"><i class="bi bi-geo-alt me-1"></i> <span id="actionAddress"></span></p>
+              
+              <a href="#" id="actionCustWhatsApp" target="_blank" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-whatsapp me-1"></i> Chat with Customer
+              </a>
+            </div>
+
+            <div class="col-md-6">
+              <h6 class="fw-bold text-success mb-2">Payment Verification</h6>
+              <p class="mb-1 small"><span class="text-muted">Method:</span> <strong id="actionPaymentMethod"></strong></p>
+              <p class="mb-1 small"><span class="text-muted">M-Pesa Receipt:</span> <strong class="text-success" id="actionReceipt"></strong></p>
+              <p class="mb-1 small"><span class="text-muted">Total Paid:</span> <strong class="fs-5 text-success" id="actionTotal"></strong></p>
+              <p class="mb-0 small"><span class="text-muted">Current Status:</span> <span class="badge bg-success" id="actionStatusBadge"></span></p>
+            </div>
+          </div>
+
+          <h6 class="fw-bold mb-2">Packing Items Checklist:</h6>
+          <div class="p-3 bg-light rounded-3 mb-4">
+            <ul class="mb-0 ps-3 small" id="actionItemsList"></ul>
+          </div>
+
+          <!-- Dispatch with Rider Form -->
+          <div class="border rounded-3 p-3 bg-white">
+            <h6 class="fw-bold mb-3"><i class="bi bi-truck me-1 text-success"></i> Update Fulfillment Status</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">New Status</label>
+                <select class="form-select form-select-sm" id="actionNewStatus">
+                  <option value="CONFIRMED">CONFIRMED (Packing)</option>
+                  <option value="DISPATCHED">DISPATCHED (With Rider)</option>
+                  <option value="DELIVERED">DELIVERED (Fulfilled)</option>
+                  <option value="CANCELLED">CANCELLED (Refund)</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Rider Name</label>
+                <input type="text" class="form-control form-control-sm" id="actionRiderName" placeholder="e.g. John Boda">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Rider Phone</label>
+                <input type="text" class="form-control form-control-sm" id="actionRiderPhone" placeholder="07XXXXXXXX">
+              </div>
+              <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+                <a href="#" id="actionRiderWhatsApp" target="_blank" class="btn btn-outline-success btn-sm">
+                  <i class="bi bi-whatsapp me-1"></i> Send Rider WhatsApp Manifest
+                </a>
+                <button type="button" class="btn btn-primary-remedy btn-sm" onclick="submitStatusUpdate()">
+                  Save Status & Send SMS Notice
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let currentPasscode = localStorage.getItem('adminPasscode') || '';
+    let adminOrders = [];
+    let currentTab = 'orders';
+    let currentFilterStatus = 'ALL';
+    let activeSelectedOrder = null;
+
+    // Login verification
+    function checkAuth() {
+      if (!currentPasscode) {
+        const modal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
+        modal.show();
+      } else {
+        document.getElementById('adminDashboardContent').style.display = 'block';
+        refreshAdminData();
+      }
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById('adminPasscodeInput').value.trim();
+      
+      try {
+        const res = await fetch(`/api/admin/stats?passcode=${encodeURIComponent(pass)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          currentPasscode = pass;
+          localStorage.setItem('adminPasscode', pass);
+          bootstrap.Modal.getInstance(document.getElementById('adminLoginModal')).hide();
+          document.getElementById('adminDashboardContent').style.display = 'block';
+          refreshAdminData();
+        } else {
+          alert('Incorrect admin passcode.');
+        }
+      } catch (err) {
+        alert('Could not verify passcode with server.');
+      }
+    }
+
+    function lockAdmin() {
+      localStorage.removeItem('adminPasscode');
+      currentPasscode = '';
+      window.location.reload();
+    }
+
+    // Refresh Live Data
+    async function refreshAdminData() {
+      if (!currentPasscode) return;
+
+      // 1. Fetch Stats
+      try {
+        const statRes = await fetch(`/api/admin/stats?passcode=${encodeURIComponent(currentPasscode)}`);
+        const statData = await statRes.json();
+        if (statData.success) {
+          const s = statData.stats;
+          document.getElementById('statTotalRev').textContent = `KES ${s.totalRevenue.toLocaleString()}`;
+          document.getElementById('statTodayRev').textContent = `Today: KES ${s.todayRevenue.toLocaleString()}`;
+          document.getElementById('statTotalOrders').textContent = s.totalOrders;
+          document.getElementById('statPendingOrders').textContent = s.pendingOrders;
+          document.getElementById('statLowStock').textContent = s.lowStockCount;
+        }
+      } catch (e) {
+        console.error('Stats error:', e);
+      }
+
+      // 2. Fetch Orders
+      try {
+        const ordRes = await fetch('/api/orders');
+        const ordData = await ordRes.json();
+        if (ordData.success) {
+          adminOrders = ordData.orders;
+          renderOrdersTable();
+        }
+      } catch (e) {
+        console.error('Orders fetch error:', e);
+      }
+
+      // 3. Fetch Inventory
+      try {
+        const invRes = await fetch(`/api/admin/inventory?passcode=${encodeURIComponent(currentPasscode)}`);
+        const invData = await invRes.json();
+        if (invData.success) {
+          renderInventoryTable(invData.inventory);
+        }
+      } catch (e) {
+        console.error('Inventory error:', e);
+      }
+    }
+
+    function switchTab(tab, status = 'ALL') {
+      currentTab = tab;
+      currentFilterStatus = status;
+
+      document.querySelectorAll('#adminTabs .nav-link').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (tab === 'orders') {
+        document.getElementById('ordersTableView').style.display = 'block';
+        document.getElementById('ordersSearchBar').style.display = 'flex';
+        document.getElementById('inventoryTableView').style.display = 'none';
+        renderOrdersTable();
+      } else {
+        document.getElementById('ordersTableView').style.display = 'none';
+        document.getElementById('ordersSearchBar').style.display = 'none';
+        document.getElementById('inventoryTableView').style.display = 'block';
+      }
+    }
+
+    // Render Orders
+    function renderOrdersTable() {
+      const tbody = document.getElementById('adminOrdersTbody');
+      const searchQuery = (document.getElementById('adminOrderSearch')?.value || '').toLowerCase();
+
+      let filtered = [...adminOrders];
+      if (currentFilterStatus !== 'ALL') {
+        filtered = filtered.filter(o => o.status === currentFilterStatus);
+      }
+
+      if (searchQuery) {
+        filtered = filtered.filter(o => 
+          o.orderNumber.toLowerCase().includes(searchQuery) ||
+          o.customerName.toLowerCase().includes(searchQuery) ||
+          o.phone.includes(searchQuery) ||
+          (o.receipt && o.receipt.toLowerCase().includes(searchQuery))
+        );
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No orders matching this criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(o => {
+        const total = o.totals?.grandTotal || o.total || 0;
+        const badgeClass = o.status === 'DELIVERED' ? 'bg-success' : o.status === 'DISPATCHED' ? 'bg-info' : o.status === 'CONFIRMED' ? 'bg-warning text-dark' : 'bg-secondary';
+
+        return `
+          <tr>
+            <td><strong>${o.orderNumber}</strong><br><small class="text-muted">${o.orderDate || ''}</small></td>
+            <td>
+              <div class="fw-bold">${o.customerName}</div>
+              <small class="text-muted"><i class="bi bi-telephone"></i> ${o.phone}</small>
+            </td>
+            <td><small>${o.address}, <strong>${o.city || o.county}</strong></small></td>
+            <td><span class="badge bg-light text-dark border">${o.items?.length || 0} items</span></td>
+            <td><strong class="text-success">KES ${total.toLocaleString()}</strong></td>
+            <td><span class="badge bg-light text-dark border">${o.receipt || o.paymentMethod}</span></td>
+            <td><span class="badge ${badgeClass}">${o.status}</span></td>
+            <td class="text-end">
+              <button class="btn btn-outline-dark btn-sm" onclick="openOrderActionModal('${o.orderNumber}')">
+                Manage / Dispatch
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Render Inventory
+    function renderInventoryTable(inventory) {
+      const tbody = document.getElementById('adminInventoryTbody');
+      const entries = Object.entries(inventory);
+
+      tbody.innerHTML = entries.map(([id, item]) => {
+        const isLow = item.stock <= (item.lowStockThreshold || 10);
+        return `
+          <tr>
+            <td><strong>${id}</strong></td>
+            <td><span class="badge bg-light text-dark border">Remedy Product</span></td>
+            <td><span class="fs-6 fw-bold ${isLow ? 'text-danger' : 'text-success'}">${item.stock} units</span></td>
+            <td>
+              <span class="badge ${isLow ? 'bg-danger' : 'bg-success'}">
+                ${isLow ? '⚠️ Low Stock' : '✓ In Stock'}
+              </span>
+            </td>
+            <td>
+              <div class="input-group input-group-sm">
+                <input type="number" id="stock_${id}" class="form-control" value="${item.stock}" min="0">
+                <button class="btn btn-outline-success" onclick="updateStockLevel('${id}')">Update</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function updateStockLevel(id) {
+      const input = document.getElementById(`stock_${id}`);
+      const newStock = Number(input.value);
+
+      try {
+        const res = await fetch(`/api/admin/inventory/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stock: newStock, passcode: currentPasscode })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Updated stock for ${id} to ${newStock}!`);
+          refreshAdminData();
+        }
+      } catch (e) {
+        alert('Stock update failed.');
+      }
+    }
+
+    // Manage Modal
+    function openOrderActionModal(orderNumber) {
+      const order = adminOrders.find(o => o.orderNumber === orderNumber);
+      if (!order) return;
+      activeSelectedOrder = order;
+
+      document.getElementById('actionModalTitle').textContent = `Order Dispatch: ${order.orderNumber}`;
+      document.getElementById('actionCustName').textContent = order.customerName;
+      document.getElementById('actionPhone').textContent = order.phone;
+      document.getElementById('actionEmail').textContent = order.email;
+      document.getElementById('actionAddress').textContent = `${order.address}, ${order.city || order.county}`;
+      document.getElementById('actionPaymentMethod').textContent = order.paymentMethod;
+      document.getElementById('actionReceipt').textContent = order.receipt || 'CONFIRMED';
+      document.getElementById('actionTotal').textContent = `KES ${(order.totals?.grandTotal || order.total || 0).toLocaleString()}`;
+      document.getElementById('actionStatusBadge').textContent = order.status;
+
+      document.getElementById('actionNewStatus').value = order.status;
+      document.getElementById('actionRiderName').value = order.riderName || '';
+      document.getElementById('actionRiderPhone').value = order.riderPhone || '';
+
+      // Direct WhatsApp link to customer
+      const custWaPhone = order.phone.replace(/\D/g, '').replace(/^0/, '254');
+      document.getElementById('actionCustWhatsApp').href = `https://wa.me/${custWaPhone}?text=${encodeURIComponent(`Hello ${order.customerName}, this is Remedy Store regarding your order ${order.orderNumber}...`)}`;
+
+      // Direct WhatsApp link to rider
+      fetch(`/api/orders/${order.orderNumber}/rider-whatsapp`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.success) document.getElementById('actionRiderWhatsApp').href = d.link;
+        });
+
+      // Items list
+      document.getElementById('actionItemsList').innerHTML = order.items.map(item => `
+        <li><strong>${item.name}</strong> × ${item.quantity} (KES ${item.price.toLocaleString()})</li>
+      `).join('');
+
+      const modal = new bootstrap.Modal(document.getElementById('orderActionModal'));
+      modal.show();
+    }
+
+    async function submitStatusUpdate() {
+      if (!activeSelectedOrder) return;
+
+      const newStatus = document.getElementById('actionNewStatus').value;
+      const riderName = document.getElementById('actionRiderName').value.trim();
+      const riderPhone = document.getElementById('actionRiderPhone').value.trim();
+
+      try {
+        const res = await fetch(`/api/orders/${activeSelectedOrder.orderNumber}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            status: newStatus,
+            riderName,
+            riderPhone,
+            passcode: currentPasscode
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert(`Order status updated to ${newStatus}! Automated SMS notification sent.`);
+          bootstrap.Modal.getInstance(document.getElementById('orderActionModal')).hide();
+          refreshAdminData();
+        } else {
+          alert(data.message || 'Update failed');
+        }
+      } catch (err) {
+        alert('Error updating status');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      const search = document.getElementById('adminOrderSearch');
+      if (search) search.addEventListener('input', renderOrdersTable);
+    });
+  </script>
+</body>
+</html>

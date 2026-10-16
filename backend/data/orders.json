@@ -1,0 +1,33 @@
+[
+  {
+    "orderNumber": "ORD-TEST-500",
+    "customerName": "Faith Muthoni",
+    "email": "faith@example.com",
+    "phone": "0722123456",
+    "county": "Nairobi",
+    "city": "Kilimani",
+    "address": "Wood Avenue, Court 12",
+    "paymentMethod": "M-Pesa",
+    "receipt": "QA98765432KES",
+    "status": "DISPATCHED",
+    "items": [
+      {
+        "id": "immunity-bundle",
+        "name": "Immunity & Vitality Trio Bundle",
+        "price": 2600,
+        "quantity": 1
+      }
+    ],
+    "totals": {
+      "subtotal": 2600,
+      "discountAmount": 0,
+      "shipping": 0,
+      "tax": 13,
+      "grandTotal": 2613
+    },
+    "updatedAt": "2026-10-14T13:31:06.434Z",
+    "createdAt": "2026-10-14T12:49:53.716Z",
+    "riderName": "Kamau Boda",
+    "riderPhone": "0711998877"
+  }
+]

@@ -3,16 +3,46 @@ const axios = require('axios');
 const cors = require('cors');
 const moment = require('moment');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+
+const db = require('./services/db');
+const smsService = require('./services/sms');
 
 const app = express();
 
 // =======================
-// MIDDLEWARE
+// SECURITY MIDDLEWARE
 // =======================
+app.use(helmet({
+    contentSecurityPolicy: false // Allow CDN assets (Bootstrap, Google Fonts, Unsplash)
+}));
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiter for M-Pesa STK push (prevents automated carrier spam)
+const mpesaLimiter = rateLimit({
+    windowMs: 2 * 60 * 1000, // 2 minutes
+    max: 6, // max 6 STK pushes per 2 minutes per IP
+    message: { success: false, message: 'Too many M-Pesa payment requests. Please wait a moment before trying again.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// General API limiter
+const apiLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+app.use('/api/', apiLimiter);
+
+// Serve static frontend files
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // =======================
@@ -25,17 +55,16 @@ const {
     MPESA_BUSINESS_SHORTCODE = '174379',
     CALLBACK_URL = 'http://localhost:3000/mpesa-callback',
     NODE_ENV = 'development',
-    PORT = 3000
+    PORT = 3000,
+    ADMIN_PASSCODE = 'remedy2026'
 } = process.env;
 
-// Correct Safaricom Daraja API Base URLs
 const BASE_URL = NODE_ENV === 'production' 
     ? 'https://api.safaricom.co.ke' 
     : 'https://sandbox.safaricom.co.ke';
 
 const pendingTransactions = new Map();
 
-// Helper: Check if genuine credentials are configured
 function hasRealCredentials() {
     return MPESA_CONSUMER_KEY && 
            MPESA_CONSUMER_SECRET && 
@@ -45,7 +74,7 @@ function hasRealCredentials() {
            !MPESA_PASSKEY.includes('your_');
 }
 
-// Cleanup transactions older than 15 minutes
+// Cleanup pending in-memory cache every 15 minutes
 setInterval(() => {
     const now = Date.now();
     for (const [id, tx] of pendingTransactions) {
@@ -70,10 +99,80 @@ async function getAccessToken() {
     }
 }
 
+// Safaricom Daraja STK Push Query API (Active fallback verification)
+async function queryDarajaStatus(checkoutRequestId) {
+    if (!hasRealCredentials()) return null;
+    try {
+        const token = await getAccessToken();
+        const timestamp = moment().format('YYYYMMDDHHmmss');
+        const password = Buffer.from(`${MPESA_BUSINESS_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
+
+        const { data } = await axios.post(`${BASE_URL}/mpesa/stkpushquery/v1/query`, {
+            BusinessShortCode: MPESA_BUSINESS_SHORTCODE,
+            Password: password,
+            Timestamp: timestamp,
+            CheckoutRequestID: checkoutRequestId
+        }, {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 8000
+        });
+        return data;
+    } catch (err) {
+        return null;
+    }
+}
+
 // =======================
-// PRODUCT CATALOG
+// PRODUCT CATALOG WITH BUNDLES
 // =======================
 const products = [
+    // 3 High-Value Synergistic Bundles
+    {
+        id: "immunity-bundle",
+        name: "Immunity & Vitality Trio Bundle",
+        category: "Synergistic Bundles",
+        badge: "Save KES 300",
+        price: 2600,
+        originalPrice: 2900,
+        rating: 5.0,
+        reviewsCount: 92,
+        inStock: true,
+        image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80",
+        benefits: "Our flagship healing trio: Pure Wild Raw Honey, Organic Moringa Powder, and Stone-Ground Cayenne. Maximizes cellular energy and viral immunity.",
+        usage: "Combine 1 tbsp Honey + 1 tsp Moringa + 1/4 tsp Cayenne in warm water with lemon daily.",
+        ingredients: "Pure Forest Honey (500g) + Moringa Leaf Powder (250g) + Cayenne Pepper (100g)"
+    },
+    {
+        id: "gut-bundle",
+        name: "Gut Healing & Acid Reflux Kit",
+        category: "Synergistic Bundles",
+        badge: "Save KES 250",
+        price: 1550,
+        originalPrice: 1800,
+        rating: 4.9,
+        reviewsCount: 64,
+        inStock: true,
+        image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=600&q=80",
+        benefits: "Soothes acid reflux, seals irritated gut lining, and detoxifies the intestinal tract with Slippery Elm, Curcumin, and Coconut Charcoal.",
+        usage: "Drink Slippery Elm before meals; take charcoal on empty stomach; enjoy golden turmeric at night.",
+        ingredients: "Slippery Elm Powder + Golden Turmeric Curcumin + Steam Activated Charcoal"
+    },
+    {
+        id: "radiance-bundle",
+        name: "Hair Growth & Skin Radiance Pack",
+        category: "Synergistic Bundles",
+        badge: "Save KES 400",
+        price: 2000,
+        originalPrice: 2400,
+        rating: 4.9,
+        reviewsCount: 78,
+        inStock: true,
+        image: "https://images.unsplash.com/photo-1510443310065-27f12440ea29?auto=format&fit=crop&w=600&q=80",
+        benefits: "Stimulates thick hair follicle growth, eliminates dandruff, and nourishes skin from inside out with cold-pressed Castor Oil & Omega-3 Chia.",
+        usage: "Massage warm castor oil into scalp 2x weekly. Soak chia seeds in daily smoothies.",
+        ingredients: "Cold-Pressed Castor Oil (500ml) + Raw Organic Chia Seeds (500g)"
+    },
+    // Single Remedies
     {
         id: "cayenne-pepper",
         name: "Cayenne Pepper",
@@ -260,25 +359,35 @@ const products = [
 // ROUTES
 // =======================
 
-// 1. Products API
+// 1. Products API with Live Stock Overlay
 app.get('/api/products', (req, res) => {
-    res.json({ success: true, count: products.length, products });
+    const inventory = db.getInventory();
+    const productsWithStock = products.map(p => {
+        const inv = inventory[p.id] || { stock: 20, lowStockThreshold: 5 };
+        return {
+            ...p,
+            stock: inv.stock,
+            isLowStock: inv.stock <= inv.lowStockThreshold,
+            inStock: inv.stock > 0
+        };
+    });
+    res.json({ success: true, count: productsWithStock.length, products: productsWithStock });
 });
 
-// 2. Health check
+// 2. Health & Gateway Diagnostics
 app.get(['/health', '/api/health'], (req, res) => {
     res.json({
         success: true,
         status: 'online',
-        service: 'Remedy Store API',
+        service: 'Remedy Store E-Commerce Gateway',
         environment: NODE_ENV,
         mpesaMode: hasRealCredentials() ? 'LIVE_DARAJA' : 'DEMO_SIMULATION',
         timestamp: new Date().toISOString()
     });
 });
 
-// 3. Initiate M-Pesa STK Push
-app.post('/api/mpesa-stk-push', async (req, res) => {
+// 3. Initiate M-Pesa STK Push (Rate limited)
+app.post('/api/mpesa-stk-push', mpesaLimiter, async (req, res) => {
     try {
         let { phoneNumber, amount, orderNumber, customerName } = req.body;
 
@@ -289,7 +398,6 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
             });
         }
 
-        // Phone sanitization for Kenyan numbers
         let phone = String(phoneNumber).replace(/\D/g, '');
         if (phone.startsWith('0')) phone = '254' + phone.slice(1);
         if (phone.startsWith('7') || phone.startsWith('1')) phone = '254' + phone;
@@ -297,14 +405,14 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
         if (!/^254(7|1)\d{8}$/.test(phone)) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Invalid Kenyan phone number format. Must start with 07, 01, or 254.' 
+                message: 'Invalid Kenyan Safaricom phone number format. Must start with 07, 01, or 254.' 
             });
         }
 
         const safeOrderNumber = orderNumber || `ORD-${Date.now()}`;
         const roundedAmount = Math.max(1, Math.round(Number(amount)));
 
-        // If credentials are live, call Safaricom Daraja API
+        // Live Daraja Gateway
         if (hasRealCredentials()) {
             const token = await getAccessToken();
             const timestamp = moment().format('YYYYMMDDHHmmss');
@@ -343,7 +451,6 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
         }
 
         // DEV / DEMO SIMULATION MODE
-        // Allows testing full checkout flow seamlessly even without live Safaricom credentials
         const simulatedCheckoutId = `ws_CO_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
         
         pendingTransactions.set(simulatedCheckoutId, {
@@ -354,7 +461,7 @@ app.post('/api/mpesa-stk-push', async (req, res) => {
             createdAt: Date.now()
         });
 
-        // Automatically simulate customer approving the prompt with PIN after 4 seconds
+        // Automatically simulate customer approving prompt with PIN after 4 seconds
         setTimeout(() => {
             if (pendingTransactions.has(simulatedCheckoutId)) {
                 const tx = pendingTransactions.get(simulatedCheckoutId);
@@ -394,6 +501,11 @@ app.post('/mpesa-callback', (req, res) => {
                     tx.status = 'COMPLETED';
                     const items = stkCallback.CallbackMetadata?.Item || [];
                     tx.receipt = items.find(i => i.Name === 'MpesaReceiptNumber')?.Value || 'CONFIRMED';
+
+                    // Update in persistent database if order exists
+                    if (tx.orderNumber) {
+                        db.updateOrderStatus(tx.orderNumber, 'CONFIRMED', { receipt: tx.receipt });
+                    }
                 } else {
                     tx.status = 'FAILED';
                     tx.failureReason = stkCallback.ResultDesc || 'User cancelled or failed';
@@ -406,8 +518,8 @@ app.post('/mpesa-callback', (req, res) => {
     res.status(200).send('Success');
 });
 
-// 5. Payment status checking (supports POST /api/check-payment-status & GET /api/check-status/:id)
-function handleStatusCheck(id, res) {
+// 5. Payment status checking (With Daraja Query Fallback)
+async function handleStatusCheck(id, res) {
     if (!id) {
         return res.status(400).json({ success: false, message: 'Transaction ID is required' });
     }
@@ -415,6 +527,21 @@ function handleStatusCheck(id, res) {
     if (!tx) {
         return res.status(404).json({ success: false, message: 'Transaction expired or not found' });
     }
+
+    // Active Daraja Query fallback if transaction is still PENDING after 8s
+    if (tx.status === 'PENDING' && (Date.now() - tx.createdAt > 8000) && hasRealCredentials()) {
+        const queryRes = await queryDarajaStatus(id);
+        if (queryRes) {
+            if (queryRes.ResultCode === '0' || queryRes.ResultCode === 0) {
+                tx.status = 'COMPLETED';
+                tx.receipt = 'VERIFIED-ONLINE';
+            } else if (queryRes.ResultCode === '1032') {
+                tx.status = 'FAILED';
+                tx.failureReason = 'Cancelled by user';
+            }
+        }
+    }
+
     return res.json({ 
         success: true, 
         status: tx.status, 
@@ -423,23 +550,125 @@ function handleStatusCheck(id, res) {
     });
 }
 
-app.post('/api/check-payment-status', (req, res) => {
+app.post('/api/check-payment-status', async (req, res) => {
     const id = req.body.checkoutRequestId || req.body.id;
     return handleStatusCheck(id, res);
 });
 
-app.get('/api/check-status/:id', (req, res) => {
+app.get('/api/check-status/:id', async (req, res) => {
     return handleStatusCheck(req.params.id, res);
 });
 
-// 6. Navigation fallbacks for clean URLs
+// =======================
+// PERSISTENT ORDERS API
+// =======================
+
+// Create / Save Order in Database & Dispatch Confirmation SMS
+app.post('/api/orders', async (req, res) => {
+    try {
+        const orderData = req.body;
+        if (!orderData || !orderData.orderNumber || !orderData.phone) {
+            return res.status(400).json({ success: false, message: 'Invalid order payload' });
+        }
+
+        const savedOrder = db.saveOrder(orderData);
+
+        // Send Automated SMS
+        if (savedOrder.status === 'CONFIRMED') {
+            smsService.sendOrderConfirmation(savedOrder).catch(e => console.error('SMS notification error:', e));
+        }
+
+        res.json({ success: true, order: savedOrder });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Get Orders (with optional filter by status or search query)
+app.get('/api/orders', (req, res) => {
+    const { status, search } = req.query;
+    const orders = db.getAllOrders({ status, search });
+    res.json({ success: true, count: orders.length, orders });
+});
+
+// Get Single Order by Order Number
+app.get('/api/orders/:orderNumber', (req, res) => {
+    const order = db.getOrder(req.params.orderNumber);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.json({ success: true, order });
+});
+
+// Update Order Status (Admin action)
+app.put('/api/orders/:orderNumber/status', (req, res) => {
+    const { status, riderName, riderPhone, notes, passcode } = req.body;
+
+    // Check admin passcode
+    if (passcode !== ADMIN_PASSCODE) {
+        return res.status(401).json({ success: false, message: 'Unauthorized. Invalid admin passcode.' });
+    }
+
+    const updated = db.updateOrderStatus(req.params.orderNumber, status, { riderName, riderPhone, notes });
+    if (!updated) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    // If order is dispatched, send automated rider dispatch SMS
+    if (status === 'DISPATCHED' && riderName) {
+        smsService.sendDispatchNotice(updated, riderName, riderPhone || '+254715224878').catch(e => console.error(e));
+    }
+
+    res.json({ success: true, order: updated });
+});
+
+// =======================
+// ADMIN DASHBOARD API
+// =======================
+
+// Admin Stats
+app.get('/api/admin/stats', (req, res) => {
+    const passcode = req.headers['x-admin-passcode'] || req.query.passcode;
+    if (passcode !== ADMIN_PASSCODE) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const stats = db.getStats();
+    res.json({ success: true, stats });
+});
+
+// Admin Inventory
+app.get('/api/admin/inventory', (req, res) => {
+    const passcode = req.headers['x-admin-passcode'] || req.query.passcode;
+    if (passcode !== ADMIN_PASSCODE) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    res.json({ success: true, inventory: db.getInventory() });
+});
+
+// Update Inventory Stock
+app.post('/api/admin/inventory/:productId', (req, res) => {
+    const { stock, passcode } = req.body;
+    if (passcode !== ADMIN_PASSCODE) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const updated = db.updateStock(req.params.productId, stock);
+    res.json({ success: true, item: updated });
+});
+
+// Generate WhatsApp dispatch link for an order
+app.get('/api/orders/:orderNumber/rider-whatsapp', (req, res) => {
+    const order = db.getOrder(req.params.orderNumber);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    const link = smsService.generateRiderWhatsAppLink(order);
+    res.json({ success: true, link });
+});
+
+// =======================
+// CLEAN URLS & STATIC PAGES
+// =======================
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, '../frontend/admin.html')));
 app.get('/order', (req, res) => res.sendFile(path.join(__dirname, '../frontend/order.html')));
 app.get('/orders', (req, res) => res.sendFile(path.join(__dirname, '../frontend/orders.html')));
 app.get('/about', (req, res) => res.sendFile(path.join(__dirname, '../frontend/about.html')));
 app.get('/blogs', (req, res) => res.sendFile(path.join(__dirname, '../frontend/blogs.html')));
 app.get('/contacts', (req, res) => res.sendFile(path.join(__dirname, '../frontend/contacts.html')));
 
-// Catch-all route to serve Index.html
 app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
     res.sendFile(path.join(__dirname, '../frontend/Index.html'));
@@ -451,7 +680,8 @@ app.get('*', (req, res, next) => {
 if (require.main === module || !process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`🌿 Remedy Store Server is running on port ${PORT}`);
-        console.log(`🌐 Open in browser: http://localhost:${PORT}`);
+        console.log(`🌐 Storefront: http://localhost:${PORT}`);
+        console.log(`🔒 Admin Portal: http://localhost:${PORT}/admin (Passcode: ${ADMIN_PASSCODE})`);
         console.log(`💳 M-Pesa Mode: ${hasRealCredentials() ? 'LIVE (Daraja)' : 'DEMO SIMULATION'}`);
     });
 }
